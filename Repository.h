@@ -1,61 +1,56 @@
 #pragma once
+#include "Branch.h"
 #include <iostream>
-#include <fstream>
-#include "String.h"
-#include <sstream>
-#include "AVLTree.h"
-#include "RedBlackTree.h"
-#include "FileReader.h"
-using namespace std;
 
 class Repository {
-	FileReader fileReader;
-	Tree<String>* tree1;
-
-	void initlizeTree(int rowCount) {
-		int choice;
-		do {
-			cout << "Enter 1 for Red Black Tree\nEnter 2 for AVL Tree\nEnter 3 for BST\nChoice: ";
-			cin >> choice;
-
-			if (choice == 1) {
-				tree1 = new RedBlackTree<String>();
-				break; // Exit the loop
-			}
-			else if (choice == 2) {
-				tree1 = new AVLTree<String>();
-				break; // Exit the loop
-			}
-			// Uncomment this block if BST option is needed
-			// else if (choice == 3) {
-			//     tree1 = new BST<String>();
-			//     break; // Exit the loop
-			// }
-			else {
-				cout << "Invalid choice. Please enter a valid option.\n";
-			}
-		} while (true);
-
-		for (int i = 0; i < rowCount; i++) {
-			String key, data;
-			fileReader.getInformation(key, data, i);
-			tree1->insert(key, data);
-		}
-		cout << "Inorder traversal of AVL Tree: " << endl;
-		tree1->inorder();
-		tree1->deleteTree();
-		cout << endl;
-		tree1->inorder();
-	}
+private:
+    Branch* activeBranch;     // Currently active branch
+    Branch** allBranches;      // Dynamic array of branches
+    int branchCount;          // Number of branches
+	String name;
+	FolderManager folderManager;
 
 public:
-	Repository() : tree1(nullptr) {}
-	~Repository() { delete tree1; }
+    // Default Constructor
+    Repository(fs::path repoName, fs::path repoPath) : branchCount(1), folderManager(repoPath) {
+		this->name = repoName.string().c_str();
+		this->allBranches = new Branch * [branchCount];
+		this->allBranches[0] = new Branch("main", repoPath);
+        this->activeBranch = this->allBranches[0];
+		this->name = name;
+    }
 
-	void init() {
-		fileReader.openFile();
-		fileReader.readFile();
-		int rowCount = fileReader.getRowCount();
-		initlizeTree(rowCount);
+	String getName() const {
+		return this->name;
 	}
+
+	void createBranch(fs::path branchName) {
+		Branch** temp = new Branch * [branchCount + 1];
+        for (int i = 0; i < branchCount; i++) {
+			temp[i] = allBranches[i];
+		}
+		temp[branchCount] = new Branch(branchName);
+		delete[] allBranches;
+		allBranches = temp;
+		branchCount++;
+	}
+
+	void checkout(fs::path branchName) {
+		// check if branch with bracnhName exists
+		// set activeBranch to branchName and navigate into the folder of enetrd branchName
+		for (int i = 0; i < branchCount; i++) {
+			if (allBranches[i]->getBranchName() == branchName) {
+				activeBranch = allBranches[i];
+				fs::current_path("../");
+				fs::current_path(activeBranch->getBranchName());
+				return;
+			}
+		}
+	}
+
+    // Destructor
+    ~Repository() {
+        delete[] allBranches;
+    }
+
 };

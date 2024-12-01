@@ -1,187 +1,156 @@
 #pragma once
-#include"Repository.h"
-#include<iostream>
-#include<filesystem>
-#include"String.h"
+#include <iostream>
+#include <filesystem>
+#include "String.h"
+
 using namespace std;
 
 namespace fs = std::filesystem;
 
 class FolderManager
 {
-	fs::path current_path;
+private:
+    fs::path current_path;
 
 public:
-	FolderManager()
-	{
-		fs::path currentPath = fs::current_path();
-		current_path = currentPath / "GitLite"; 
+    FolderManager(fs::path current_path)
+    {
+        this->current_path = current_path;
+    }
 
-		// Check if the directory exists
-		if (!fs::exists(current_path))
-		{
-			// Create the directory
-			if (fs::create_directory(current_path))
-			{
-				fs::current_path(current_path);
-				current_path = fs::current_path();
-				cout << "\nDirectory created: " << current_path << endl;
-			}
-			else
-			{
-				cout << "\nFailed to create directory: " << current_path << endl;
-			}
-		}
-		else
-		{
-			fs::current_path(current_path);
-			current_path = fs::current_path();
-			cout << "\nDirectory already exists: " << current_path << std::endl;
-		}
+    void create_folder(const fs::path& folder_name)
+    {
+        fs::path newFolderPath = current_path / folder_name;
+        if (!fs::exists(newFolderPath))
+        {
+            // Create the directory
+            if (fs::create_directory(newFolderPath))
+            {
+                cout << "\nDirectory created: " << newFolderPath << endl;
+            }
+            else
+            {
+                cout << "\nFailed to create directory: " << newFolderPath << endl;
+            }
+        }
+        else
+        {
+            cout << "\nDirectory already exists: " << newFolderPath << std::endl;
+        }
+    }
 
-	}
+    void open_folder(const fs::path& folder_name)
+    {
+        fs::path folderPath = current_path / folder_name;
+        if (fs::exists(folderPath) && fs::is_directory(folderPath))
+        {
+            fs::current_path(folderPath);
+            current_path = fs::current_path();
+            cout << "\nOpened folder: " << folderPath << endl;
+        }
+        else
+        {
+            cout << "\nFolder does not exist: " << folderPath << endl;
+        }
+    }
 
-	void create_folder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			// Create the directory
-			if (fs::create_directory(newFolderPath))
-			{
-				cout << "\nDirectory created: " << newFolderPath << endl;
-			}
-			else 
-			{
-				cout << "\nFailed to create directory: " << newFolderPath << endl;
-				return;
-			}
-		}
-		else 
-		{
-			cout << "\nDirectory already exists: " << newFolderPath << std::endl;
-		}
-		fs::current_path(newFolderPath);
-		current_path = fs::current_path();
-		return;
-	}
+    void delete_folder(const fs::path& folder_name)
+    {
+        fs::path folderPath = current_path / folder_name;
+        if (!fs::exists(folderPath))
+        {
+            cout << "\nDirectory does not exist: " << folderPath << std::endl;
+        }
+        else
+        {
+            if (fs::remove_all(folderPath))
+            {
+                cout << "\nDirectory deleted: " << folderPath << endl;
+            }
+            else
+            {
+                cout << "\nFailed to delete directory: " << folderPath << endl;
+            }
+        }
+    }
 
-	void delete_folder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			cout << "\nDirectory does not exist: " << newFolderPath << std::endl;
-		}
-		else 
-		{
-			if (fs::remove_all(newFolderPath)) 
-			{
-				cout << "\nDirectory deleted: " << newFolderPath << endl;
-			}
-			else 
-			{
-				cout << "\nFailed to delete directory: " << newFolderPath << endl;
-			}
-		}
-		return;
-	}
+    void navigate_to_folder(const fs::path& folder_name)
+    {
+        fs::path newFolderPath = current_path / folder_name;
+        if (!fs::exists(newFolderPath))
+        {
+            cout << "\nDirectory does not exist: " << newFolderPath << std::endl;
+        }
+        else
+        {
+            fs::current_path(newFolderPath);
+            current_path = fs::current_path();
+            cout << "\nDirectory changed to: " << newFolderPath << endl;
+        }
+    }
 
-	void nagivateToFolder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			cout << "\nDirectory does not exist: " << newFolderPath << std::endl;
-		}
-		else 
-		{
-			fs::current_path(newFolderPath);
-			current_path = fs::current_path();
-			cout << "\nDirectory changed to: " << newFolderPath << endl;
-		}
-		return;
-	}
+    // List files in the current directory
+    void list_files() const
+    {
+        for (const auto& entry : fs::directory_iterator(current_path))
+        {
+            if (fs::is_regular_file(entry.path()))
+            {
+                cout << entry.path().filename() << endl;
+            }
+        }
+    }
 
-	// list files
-	void listFiles()
-	{
-		for (const auto& entry : fs::directory_iterator(fs::current_path()))
-		{
-			if (fs::is_regular_file(entry.path()))
-			{
-				cout << entry.path().filename() << endl;
-			}
-		}
-		return;
-	}
+    // List folders in the current directory
+    void list_folders() const
+    {
+        for (const auto& entry : fs::directory_iterator(current_path))
+        {
+            if (fs::is_directory(entry.path()))
+            {
+                cout << entry.path().filename() << endl;
+            }
+        }
+        list_files();
+    }
 
-	// list folders
-	void listFolders()
-	{
-		for (const auto& entry : fs::directory_iterator(current_path))
-		{
-			if (fs::is_directory(entry.path()))
-			{
-				cout << entry.path().filename() << endl;
-			}
-		}
-		listFiles();
+    // Copy folder
+    void copy_folder(const fs::path& new_folder_name, const fs::path& folder_name)
+    {
+        fs::path newFolderPath = current_path / new_folder_name;
+        if (!fs::exists(newFolderPath))
+        {
+            // Create the directory
+            if (fs::create_directory(newFolderPath))
+            {
+                cout << "\nDirectory created: " << newFolderPath << endl;
+            }
+            else
+            {
+                cout << "\nFailed to create directory: " << newFolderPath << endl;
+            }
+        }
+        else
+        {
+            cout << "\nDirectory already exists: " << newFolderPath << std::endl;
+        }
+        fs::copy(current_path / folder_name, newFolderPath, fs::copy_options::recursive);
+    }
 
-		return;
-	}
-	// copy folder
-	void copyFolder(fs::path Path, fs::path newFolder_name, fs::path Folder_name)
-	{
+    // Current directory path
+    void current_folder() const
+    {
+        cout << "\nCurrent path: " << current_path << endl;
+    }
 
-		fs::path newFolderPath = Path / newFolder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			// Create the directory
-			if (fs::create_directory(newFolderPath))
-			{
-				cout << "\nDirectory created: " << newFolderPath << endl;
-			}
-			else 
-			{
-				cout << "\nFailed to create directory: " << newFolderPath << endl;
-			}
-		}
-		else 
-		{
-			cout << "\nDirectory already exists: " << newFolderPath << std::endl;
-		}
-		fs::copy(Folder_name, newFolder_name, fs::copy_options::recursive);
+    fs::path get_current_path() const
+    {
+        return current_path;
+    }
 
-		return;
-
-	}
-
-	// current directory path
-	void currentFolder()
-	{
-		cout << "\nCurrent path: " << current_path << endl;
-		return;
-	}
-
-	void openFolder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			cout << "\nDirectory does not exist: " << newFolderPath << endl;
-		}
-		else 
-		{
-			fs::current_path(newFolderPath);
-			current_path = fs::current_path();
-			
-		}
-		return;
-	}
-
-	fs::path get_current_path()
-	{
-		return current_path;
-	}
+    void set_current_path(const fs::path& path)
+    {
+        fs::current_path(path);
+        current_path = fs::current_path();
+    }
 };
