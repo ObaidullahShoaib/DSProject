@@ -52,42 +52,24 @@ class Branch {
 	}
 
 public:
-	Branch(fs::path repoPath):folderManager(repoPath){}
+	// Branch(fs::path repoPath):folderManager(repoPath){}
 
 	Branch(fs::path branchName, fs::path repoPath) : branchName(branchName), tree1(nullptr), folderManager(repoPath) {
 		if (branchName == "main")
 		{
 			folderManager.create_folder(this->branchName);
 			folderManager.create_folder(folderManager.get_current_path() / this->branchName / "Nodes");
-
+			init();
 		}
 		else
 		{
-			//string source;
-			//cout << "Enter the branch name to copy from: ";
-			//cin >> source;
+			string source;
+			cout << "Enter the branch name to copy from: ";
+			cin >> source;
 
-			//folderManager.copyFolder(branchName, source);
+			folderManager.copy_folder(branchName, source);
 		}
 	}
-
-	//// copy constructor
-	//Branch(const Branch& branch) : branchName(branch.branchName), tree1(nullptr) {
-	//	folderManager.create_folder(folderManager.get_current_path(), this->branchName);
-	//	folderManager.create_folder(folderManager.get_current_path(), "Nodes");
-	//	this->init();
-	//}
-
-	////assignment operator
-	//Branch& operator=(const Branch& branch) {
-	//	if (this != &branch) {
-	//		this->branchName = branch.branchName;
-	//		folderManager.create_folder(folderManager.get_current_path(), this->branchName);
-	//		folderManager.create_folder(folderManager.get_current_path(), "Nodes");
-	//		this->init();
-	//	}
-	//	return *this;
-	//}
 
 	~Branch() {
 		if (tree1) {

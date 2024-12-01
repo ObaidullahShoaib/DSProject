@@ -19,6 +19,9 @@ public:
 		}
 		folderManager.create_folder(name);
 		temp[repoCount] = new Repository(name, folderManager.get_current_path() / name);
+		delete[] allRepos;
+		allRepos = temp;
+		this->activeRepo = allRepos[repoCount];
 		
 	}
 	void setActiveRepo(fs::path pathName) {
