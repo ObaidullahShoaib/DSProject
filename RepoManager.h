@@ -45,7 +45,11 @@ public:
 	}
 
 	void createBranch(fs::path branchName) {
-		activeRepo->createBranch(branchName);
+		if (activeRepo != nullptr)
+			activeRepo->createBranch(branchName);
+		else {
+			cout << "No active repository" << endl;
+		}
 	}
 	~RepoManager() {
 		for (int i = 0; i < repoCount; i++) {

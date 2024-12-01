@@ -47,6 +47,8 @@ public:
 				return;
 			}
 		}
+
+		cout << "Branch not found" << endl;
 	}
 
     // Destructor

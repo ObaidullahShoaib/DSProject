@@ -42,7 +42,7 @@ public:
 	{
         do
         {
-            //cout << "Input the name of the CSV file with extension: "; // example.csv
+            cout << "Input the name of the CSV file with extension: "; // example.csv
             cin.ignore();
             cin.getline(file_name, 1000);
 
