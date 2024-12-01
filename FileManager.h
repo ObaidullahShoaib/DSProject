@@ -1,187 +1,131 @@
 #pragma once
-#include"Repository.h"
-#include<iostream>
+// class to manage .csv and .txt files
+#include <iostream>
+#include <fstream>
 #include<filesystem>
-#include"String.h"
-using namespace std;
+#include "String.h"
 
+using namespace std;
 namespace fs = std::filesystem;
 
 class FileManager
 {
-	fs::path current_path;
-
 public:
-	FileManager()
-	{
-		fs::path currentPath = fs::current_path();
-		current_path = currentPath / "GitLite"; 
 
-		// Check if the directory exists
-		if (!fs::exists(current_path))
-		{
-			// Create the directory
-			if (fs::create_directory(current_path))
-			{
-				fs::current_path(current_path);
-				current_path = fs::current_path();
-				cout << "\nDirectory created: " << current_path << endl;
-			}
-			else
-			{
-				cout << "\nFailed to create directory: " << current_path << endl;
-			}
-		}
-		else
-		{
-			fs::current_path(current_path);
-			current_path = fs::current_path();
-			cout << "\nDirectory already exists: " << current_path << std::endl;
-		}
+    char* file_name;    
+	fs::path PfileName;
+    fs::path CSVPath;
+	ifstream inputFile;
+    ofstream outputFile;
+	int rowCount;
 
-	}
+    // virtual functions to be implemented in child classes
+    virtual void displayFileData() = 0;
+    virtual void readFileData() = 0;
+    virtual void writeFileData() = 0;
 
-	void create_folder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			// Create the directory
-			if (fs::create_directory(newFolderPath))
-			{
-				cout << "\nDirectory created: " << newFolderPath << endl;
-			}
-			else 
-			{
-				cout << "\nFailed to create directory: " << newFolderPath << endl;
-				return;
-			}
-		}
-		else 
-		{
-			cout << "\nDirectory already exists: " << newFolderPath << std::endl;
-		}
-		fs::current_path(newFolderPath);
-		current_path = fs::current_path();
-		return;
-	}
+    //constructor
+	FileManager() 
+    {
+        file_name = new char[1000];
+		rowCount = 0;
+    }
 
-	void delete_folder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			cout << "\nDirectory does not exist: " << newFolderPath << std::endl;
-		}
-		else 
-		{
-			if (fs::remove_all(newFolderPath)) 
-			{
-				cout << "\nDirectory deleted: " << newFolderPath << endl;
-			}
-			else 
-			{
-				cout << "\nFailed to delete directory: " << newFolderPath << endl;
-			}
-		}
-		return;
-	}
+    void openFile()
+    {
+        do
+        {
+            cout << "Input the name of the file with extension: "; // example.csv
+            cin.ignore();
+            // reading filename into char* then converting to fs::path
+            cin.getline(file_name, 1000);
 
-	void nagivateToFolder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			cout << "\nDirectory does not exist: " << newFolderPath << std::endl;
-		}
-		else 
-		{
-			fs::current_path(newFolderPath);
-			current_path = fs::current_path();
-			cout << "\nDirectory changed to: " << newFolderPath << endl;
-		}
-		return;
-	}
+            // convert char* to fs::path
+            fs::path PfileName(file_name);
 
-	// list files
-	void listFiles()
-	{
-		for (const auto& entry : fs::directory_iterator(fs::current_path()))
-		{
-			if (fs::is_regular_file(entry.path()))
-			{
-				cout << entry.path().filename() << endl;
-			}
-		}
-		return;
-	}
+            inputFile.open(file_name);
+            CSVPath = fs::current_path();
+            if (!inputFile.is_open())
+            {
+                cout << "Error: Could not open the file. Please try again." << endl;
+            }
+        } while (!inputFile.is_open());
 
-	// list folders
-	void listFolders()
-	{
-		for (const auto& entry : fs::directory_iterator(current_path))
-		{
-			if (fs::is_directory(entry.path()))
-			{
-				cout << entry.path().filename() << endl;
-			}
-		}
-		listFiles();
+        cout << "File opened successfully!" << endl;
+    }
 
-		return;
-	}
-	// copy folder
-	void copyFolder(fs::path Path, fs::path newFolder_name, fs::path Folder_name)
-	{
+    fs::path getCSVPath() {
+        return this->CSVPath;
+    }
 
-		fs::path newFolderPath = Path / newFolder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			// Create the directory
-			if (fs::create_directory(newFolderPath))
-			{
-				cout << "\nDirectory created: " << newFolderPath << endl;
-			}
-			else 
-			{
-				cout << "\nFailed to create directory: " << newFolderPath << endl;
-			}
-		}
-		else 
-		{
-			cout << "\nDirectory already exists: " << newFolderPath << std::endl;
-		}
-		fs::copy(Folder_name, newFolder_name, fs::copy_options::recursive);
+    void deleteFile()
+    {
+        if (fs::remove(file_name)) 
+        {
+            cout << "File deleted successfully: " << file_name << endl;
+        }
+        else 
+        {
+            cerr << "Error: Could not delete file: " << file_name << endl;
+        }
+    }
+    
+    void closeFile()
+    {
+		if (inputFile.is_open())
+			inputFile.close();
+    }
 
-		return;
+    // Function to copy a file
+    void copy_file(const std::filesystem::path& source, const std::filesystem::path& destination) 
+    {
+        try {
+            // Check if the source file exists
+            if (!std::filesystem::exists(source)) 
+            {
+                cout << "Source file does not exist: " << source << endl;
+                return;
+            }
 
-	}
+            // Copy the file to the destination
+            std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
+            cout << "File copied from " << source << " to " << destination << endl;
+        }
+        catch (const std::filesystem::filesystem_error& e) 
+        {
+            cout << "Error copying file: " << e.what() << endl;
+        }
+    }
 
-	// current directory path
-	void currentFolder()
-	{
-		cout << "\nCurrent path: " << current_path << endl;
-		return;
-	}
+    void readFileData(fs::path file_name, char*& data)
+    {
+        // Open the file for reading
+        ifstream inputFile(file_name);
+        if (inputFile.is_open())
+        {
+            char* line = new char[5000];           
 
-	void openFolder(fs::path Path, fs::path Folder_name)
-	{
-		fs::path newFolderPath = Path / Folder_name;
-		if (!fs::exists(newFolderPath)) 
-		{
-			cout << "\nDirectory does not exist: " << newFolderPath << endl;
-		}
-		else 
-		{
-			fs::current_path(newFolderPath);
-			current_path = fs::current_path();
-			
-		}
-		return;
-	}
+            inputFile >> line;
+            while (line) 
+            {
+				my_strcpy(data, line);
+                //line = my_strcat(line, "\n");
+				delete[] line;
+				line = new char[5000];
+				inputFile >> line;
+            }
 
-	fs::path get_current_path()
-	{
-		return current_path;
-	}
+            inputFile.close(); // Close the file
+            cout << "Data read from the file successfully." << endl;
+        }
+        else {
+            cout << "Error: Could not open the file for reading." << endl;
+        }
+    }
+
+    virtual ~FileManager() 
+    {
+        delete[] file_name;
+		closeFile();
+    }
 };

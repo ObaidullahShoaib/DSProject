@@ -5,12 +5,14 @@
 #include <sstream>
 #include "AVLTree.h"
 #include "RedBlackTree.h"
-#include "FileReader.h"
+#include "FileManager.h"
 #include "FolderManager.h"
+#include "CSVFileManager.h"
+#include "TXTFileManager.h"
 using namespace std;
 
 class Branch {
-	FileReader fileReader;
+	CSVFileManager fileReader;
 	Tree<String>* tree1;
 	FolderManager folderManager;
 	fs::path branchName;
@@ -60,6 +62,7 @@ public:
 			folderManager.create_folder(this->branchName);
 			folderManager.create_folder(folderManager.get_current_path() / this->branchName / "Nodes");
 			init();
+			fileReader.copy_file(fileReader.getCSVPath() / fileReader.file_name, repoPath / this->branchName);
 		}
 		else
 		{
@@ -80,7 +83,7 @@ public:
 
 	void init() {
 		fileReader.openFile();
-		fileReader.readFile();
+		fileReader.readFileData();
 		int rowCount = fileReader.getRowCount();
 		initializeTree(rowCount);
 	}
