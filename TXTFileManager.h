@@ -1,20 +1,17 @@
 #pragma once
 #include "FileManager.h"
-#include"Repository.h"
+#include "Repository.h"
 
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 
-
 using namespace std;
 
 class TxtFileManager : public FileManager
 {
-
 public:
     TxtFileManager() : FileManager() {}
-
     void readFileData() override
     {
         // Open the file for reading
@@ -105,13 +102,13 @@ public:
 		}
         // write data to file
         outputFile << repo1.getName().c_str() << endl;
-        outputFile << repo1.getFolderManager().get_current_path();
+        outputFile << repo1.getFolderManager().get_current_path() << endl;
 		outputFile << repo1.getBranchCount() << endl;
         for (int i = 0; i < repo1.getBranchCount(); i++)
         {
-            outputFile << repo1.getAllBranches()[i]->getBranchName().c_str() << endl;
+            outputFile << repo1.getAllBranches()[i]->getBranchName().string() << endl;
         }
-        outputFile << repo1.getActiveBranch()->getBranchName().c_str() << endl;
+        outputFile << repo1.getActiveBranch()->getBranchName().string() << endl;
     }
 
     // load data from a txt file
@@ -154,4 +151,5 @@ public:
 		}
 
 	}
+
 };

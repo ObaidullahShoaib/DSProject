@@ -96,14 +96,14 @@ private:
         return node;
     }
 
-    AVLNode<T>* insertHelper(AVLNode<T>* node, const T& key, const String& data) {
+    AVLNode<T>* insertHelper(AVLNode<T>* node, const T& key, const String& data, int hashType) {
         if (node == nullptr)
-            return new AVLNode<T>(key, data);
+            return new AVLNode<T>(key, data, hashType);
 
         if (key < node->key)
-            node->descendants[0] = insertHelper(node->descendants[0], key, data);
+            node->descendants[0] = insertHelper(node->descendants[0], key, data,hashType);
 		else // key >= node->key
-            node->descendants[1] = insertHelper(node->descendants[1], key, data);
+            node->descendants[1] = insertHelper(node->descendants[1], key, data, hashType);
 
         return rebalance(node);
     }
@@ -182,18 +182,68 @@ public:
 		root = nullptr;
     }
 
-    void insert(const T key, const String data) override {
-        root = insertHelper(root, key, data);
+    void insert(const T key, String data, int hashType) override {
+        // Inserting a new node
+        root = insertHelper(root, key, data,hashType);
+
+        // Setting Parent
+        AVLNode<T>* insertedNode = search(key, data);
+        findAndSetParentOf(insertedNode);
+
+        // Hash Recalculation (up all the ancestors - Merkle Tree Property)
+        AVLNode<T>* current = insertedNode;
+
+        while (current != nullptr)
+        {
+            if (current->hashType == 1)
+            {
+                if (current == insertedNode)
+                {
+                    current->instructorHash = instructor_Hash(current->key);
+                }
+            }
+            else if (current->hashType == 2)
+            {
+                if (current == insertedNode)
+                {
+                    const char* str = current->key.c_str();
+                    generate_sha256_hash(str, current->shaHash);
+                }
+            }
+            current = current->parent;
+        }
     }
 
-    void remove(const T key) override{
+
+
+    AVLNode<T>* findAndSetParentOf(AVLNode<T>* node) const {
+        if (node == nullptr) return nullptr;
+
+        AVLNode<T>* current = this->root;
+        while (current != nullptr) {
+            if (current->descendants[0] == node || current->descendants[1] == node) {
+                node->parent = current;
+                return current;
+            }
+            else if (node->key < current->key) {
+                current = current->descendants[0];
+            }
+            else {
+                current = current->descendants[1];
+            }
+        }
+        node->parent = nullptr;
+        return nullptr;
+    }
+
+    void remove(const T key) override {
         root = deleteHelper(root, key);
     }
 
-    TreeNode<T>* search(const T& key) override {
+    AVLNode<T>* search(const T& key, String& data) {
         AVLNode<T>* current = root;
         while (current != nullptr) {
-            if (current->key == key) {
+            if (current->key == key && current->data == data) {
                 return current;
             }
             else if (current->key < key) {
@@ -203,7 +253,7 @@ public:
                 current = current->descendants[0];
             }
         }
-        return new AVLNode<T>();
+        return nullptr;
     }
 
     bool isAVL() const {

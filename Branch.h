@@ -17,6 +17,8 @@ class Branch {
 	FolderManager folderManager;
 	fs::path branchName;
 
+	int hashType;
+
 	void initializeTree(int rowCount) {
 		int choice;
 		do {
@@ -44,7 +46,7 @@ class Branch {
 		for (int i = 0; i < rowCount; i++) {
 			String key, data;
 			fileReader.getInformation(key, data, i);
-			tree1->insert(key, data);
+			tree1->insert(key, data, hashType);
 		}
 		cout << "Inorder traversal of AVL Tree: " << endl;
 		tree1->inorder();
@@ -63,15 +65,7 @@ public:
 			folderManager.create_folder(folderManager.get_current_path() / this->branchName / "Nodes");
 			init();
 			fileReader.copy_file(fileReader.getCSVPath() / fileReader.file_name, repoPath / this->branchName);
-		}
-		else
-		{
-			string source;
-			cout << "Enter the branch name to copy from: ";
-			cin >> source;
-
-			folderManager.copy_folder(branchName, source);
-		}
+		}		
 	}
 
 	~Branch() {

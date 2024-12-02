@@ -7,9 +7,15 @@
 
 using namespace std;
 
+template <typename T>
+int hashFunction(T key) 
+{
+    // generate has for whether string or integer
+    return instructor_Hash(key);
+}
 
 // Hashing for string value
-int instructorHash(String str) {
+int instructor_Hash(String str) {
     int hashkey = 1;
     int i = 0;
     while (str[i] != '\0') {
@@ -21,7 +27,7 @@ int instructorHash(String str) {
 }
 
 // Hashing for integer value
-int instructorHash(int num) {
+int instructor_Hash(int num) {
     int hashkey = 1;
     while (num > 0) {
         int temp = num % 10; // extracting digits

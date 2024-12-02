@@ -226,8 +226,8 @@ public:
     }
 
 
-    void insert(T key, String data) override {
-        RBNode<T>* node = new RBNode<T>(key, data);
+    void insert(T key, String data, int hashType) override {
+        RBNode<T>* node = new RBNode<T>(key, data, hashType);
         RBNode<T>* parent = nullptr;
         RBNode<T>* current = root;
 
@@ -329,19 +329,19 @@ public:
         cout << endl;
     }
 
-	TreeNode<T>* search(const T& key) override {
-		RBNode<T>* current = root;
-		while (current != nullptr) {
-			if (current->key == key) {
-				return current;
-			}
-			else if (current->key < key) {
-				current = current->descendants[1];
-			}
-			else {
-				current = current->descendants[0];
-			}
-		}
-		return new RBNode<T>();
-	}
+	//TreeNode<T>* search(const T& key) override {
+	//	RBNode<T>* current = root;
+	//	while (current != nullptr) {
+	//		if (current->key == key) {
+	//			return current;
+	//		}
+	//		else if (current->key < key) {
+	//			current = current->descendants[1];
+	//		}
+	//		else {
+	//			current = current->descendants[0];
+	//		}
+	//	}
+	//	return new RBNode<T>();
+	//}
 };

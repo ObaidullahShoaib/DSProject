@@ -1,5 +1,5 @@
 #pragma once
-#include "Repository.h"
+class Repository;
 #include <iostream>
 #include <filesystem>
 #include "String.h"
@@ -116,9 +116,18 @@ public:
     }
 
     // Copy folder
-    void copy_folder(const fs::path& new_folder_name, const fs::path& folder_name)
+    void copy_folder(const fs::path& new_folder_name, const fs::path& folder_name, bool forceCopy = false)
     {
         fs::path newFolderPath = current_path / new_folder_name;
+        if (forceCopy)
+        {
+            delete_folder(new_folder_name);
+            create_folder(new_folder_name);
+            fs::path source = current_path / folder_name;
+            fs::copy(source, newFolderPath, fs::copy_options::overwrite_existing);
+            return;
+        }
+
         if (!fs::exists(newFolderPath))
         {
             // Create the directory
@@ -134,6 +143,7 @@ public:
         else
         {
             cout << "\nDirectory already exists: " << newFolderPath << std::endl;
+            delete_folder(new_folder_name);
         }
         fs::copy(current_path / folder_name, newFolderPath, fs::copy_options::recursive);
     }

@@ -1,6 +1,11 @@
 #pragma once
-#include "Repository.h"
+class Repository;
+#include"TXTFileManager.h"
 #include <filesystem>
+using namespace std;
+
+namespace fs = std::filesystem;
+
 class RepoManager {
 	Repository* activeRepo;
 	Repository** allRepos;
@@ -8,6 +13,7 @@ class RepoManager {
 	TxtFileManager repoMetadata;
 	FolderManager folderManager;
 
+	int hashType;
 	int repoCount;
 
 public:
@@ -64,6 +70,9 @@ public:
 	void save() {
 		Repository* temp = activeRepo;
 		repoMetadata.SaveRepoToTxt(*temp, temp->getFolderManager().get_current_path());
+		fs::path newPath = temp->getName().c_str();
+		newPath += "_copy";
+		folderManager.copy_folder(folderManager.get_current_path() / newPath, folderManager.get_current_path() / temp->getName().c_str(), true);
 	}
 
 	// to load user's chosen repository from txt file:
@@ -87,6 +96,31 @@ public:
 				return this->allRepos[i];			
 		}
 		return nullptr;
+	}
+
+	void inputHashType() {
+		int choice;
+		int expiryCount = 0;
+
+		do {
+			if (expiryCount == 3)
+			{
+				cout << "Defaulting to SHA256 Hash." << endl;
+				choice = 2;
+			}
+			else
+			{
+				cout << "Which Hashing method do you want to use?" << endl << "1. Instructor Hash" << endl << "2. SHA256 Hash" << endl << "Choice: ";
+				cin >> choice;
+			}
+
+			if (choice == 1 || choice == 2)
+				this->hashType = choice;
+			else
+				cout << "Invalid Choice." << endl;
+
+			expiryCount++;
+		} while (choice != 1 && choice != 2);
 	}
 
 	~RepoManager() {

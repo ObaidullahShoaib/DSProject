@@ -56,7 +56,7 @@ public:
 	// set Folder Manager
 	void setFolderManager(FolderManager* folderManager) {
 		this->folderManager = *folderManager;
-	}	
+	}		
 
     Repository(fs::path repoName, fs::path repoPath) : branchCount(1), folderManager(repoPath) {
 		this->name = repoName.string().c_str();
@@ -65,16 +65,72 @@ public:
         this->activeBranch = this->allBranches[0];
 		this->name = name;
     }
-	void createBranch(fs::path branchName) {
-		Branch** temp = new Branch * [branchCount + 1];
-        for (int i = 0; i < branchCount; i++) {
-			temp[i] = allBranches[i];
+
+	Branch* findBranch(fs::path branchName) {
+		for (int i = 0; i < branchCount; i++) {
+			if (allBranches[i]->getBranchName() == branchName) {
+				return allBranches[i];
+			}
 		}
-		temp[branchCount] = new Branch(branchName, folderManager.get_current_path());
-		delete[] allBranches;
-		allBranches = temp;
-		folderManager.create_folder(folderManager.get_current_path() / branchName);
-		branchCount++;
+		return nullptr;
+	}
+
+	void createBranch(fs::path branchName) {
+		// Declarations:
+		bool alreadyExists = this->findBranch(branchName) != nullptr;
+		int expiryCount = 0;
+
+		// Checking if branch already exists:
+		if (alreadyExists)
+		{
+			fs::path newFolderPath = folderManager.get_current_path() / branchName;
+			cout << "\n Do you want to overwrite the file?\n1. Yes.\n2. No\nChoice: ";
+			int choice;
+			
+			do {
+				cin >> choice;
+				if (choice == 1)
+				{
+					break;
+				}
+				else if (choice == 2)
+					return;
+				else
+					expiryCount++;
+			} while (choice != 1 && choice != 2 && expiryCount < 3);
+		}
+
+		if (expiryCount >= 3)
+		{
+			cout << "\nDefaulting to not overwriting the file." << endl;
+			return;
+		}
+
+		char* sourceBranchName = new char[100];
+		cout << "\nEnter source branch name to copy from: ";
+		cin.ignore();
+		cin.getline(sourceBranchName, 100);
+		cout << endl;
+
+		if (!alreadyExists)
+		{
+			Branch** temp = new Branch * [branchCount + 1];
+			for (int i = 0; i < branchCount; i++) {
+				temp[i] = allBranches[i];
+			}
+			temp[branchCount] = new Branch(branchName, folderManager.get_current_path());
+			delete[] allBranches;
+			allBranches = temp;
+						
+			branchCount++;
+		}		
+		
+		else
+		{
+			cout << "\nBranch already exists." << endl;
+			folderManager.delete_folder(folderManager.get_current_path() / branchName);			
+		}
+		folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
 	}
 
 	void addBranch(fs::path branchName, int index, bool branchCountSet = false)
