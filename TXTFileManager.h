@@ -1,6 +1,5 @@
 #pragma once
 #include "FileManager.h"
-#include "Repository.h"
 
 #include <iostream>
 #include <fstream>
@@ -83,73 +82,5 @@ public:
     {
         // Use the copy_file() function from the parent class to copy the file
         copy_file(PfileName, destination);
-    }
-
-    void SaveRepoToTxt(Repository& repo1, fs::path pathToSaveTo)
-    {
-        // save above info in a txt file in pathtosaveto location
-        string fileName = repo1.getName().c_str();
-        fileName += "_data.txt";
-        
-        fs::path pathToSaveToFile = pathToSaveTo / fileName;
-        // create file
-		this->outputFile = ofstream(pathToSaveToFile);
-        // open file
-		if (!outputFile) 
-		{
-			cout << "Error: Could not open the file for writing." << endl;
-			return;
-		}
-        // write data to file
-        outputFile << repo1.getName().c_str() << endl;
-        outputFile << repo1.getFolderManager().get_current_path() << endl;
-		outputFile << repo1.getBranchCount() << endl;
-        for (int i = 0; i < repo1.getBranchCount(); i++)
-        {
-            outputFile << repo1.getAllBranches()[i]->getBranchName().string() << endl;
-        }
-        outputFile << repo1.getActiveBranch()->getBranchName().string() << endl;
-    }
-
-    // load data from a txt file
-    void LoadRepoFromTxt(Repository& repo1, fs::path FilePath)
-	{
-		// load data from file
-		this->inputFile = ifstream(FilePath);
-		if (!inputFile) 
-		{
-			cout << "Error: Could not open the file for reading." << endl;
-			return;
-		}
-		char* line = new char[256];
-        // read data from file
-		inputFile.getline(line, 256);
-		repo1.setName(line);
-
-		inputFile.getline(line, 256);
-		repo1.setFolderManager(new FolderManager(line));
-
-		inputFile.getline(line, 256);
-		repo1.setBranchCount(atoi(line));
-
-		for (int i = 0; i < repo1.getBranchCount(); i++)
-		{
-			inputFile.getline(line, 256);
-            repo1.addBranch(line, i, true);
-		}
-
-		inputFile.getline(line, 256);
-        
-        // finding the active branch
-		for (int i = 0; i < repo1.getBranchCount(); i++)
-		{
-            fs::path linePathed = line;
-            if (repo1.getAllBranches()[i]->getBranchName() == linePathed)
-			{
-				repo1.setActiveBranch(repo1.getAllBranches()[i]);
-			}
-		}
-
-	}
-
+    }    
 };

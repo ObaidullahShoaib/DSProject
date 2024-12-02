@@ -124,7 +124,7 @@ public:
             delete_folder(new_folder_name);
             create_folder(new_folder_name);
             fs::path source = current_path / folder_name;
-            fs::copy(source, newFolderPath, fs::copy_options::overwrite_existing);
+            fs::copy(source, newFolderPath, fs::copy_options::recursive);
             return;
         }
 

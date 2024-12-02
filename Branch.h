@@ -14,7 +14,7 @@ using namespace std;
 class Branch {
 	CSVFileManager fileReader;
 	Tree<String>* tree1;
-	FolderManager folderManager;
+	FolderManager folderManager;	
 	fs::path branchName;
 
 	int hashType;
