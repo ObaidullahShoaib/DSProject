@@ -32,6 +32,16 @@ public:
 				cin >> branchName;
 				manager.checkout(branchName);
 			}
+			else if (input == "save")
+			{
+				manager.save();
+			}
+			else if (input == "load")
+			{
+				char* repoName = new char[100];
+				cin >> repoName;
+				manager.load(repoName);
+			}
 			else if (input == "exit") {
 				break; // Exit the program
 			}

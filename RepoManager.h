@@ -4,8 +4,12 @@
 class RepoManager {
 	Repository* activeRepo;
 	Repository** allRepos;
+	
+	TxtFileManager repoMetadata;
 	FolderManager folderManager;
+
 	int repoCount;
+
 public:
 	RepoManager(fs::path GitLitePath):folderManager(GitLitePath) {
 		activeRepo = nullptr;
@@ -51,6 +55,40 @@ public:
 			cout << "No active repository" << endl;
 		}
 	}
+
+	/*
+		----- SAVING AND LOADING REPOSITORY-----
+	*/
+
+	// to save current/active repository state to txt file:
+	void save() {
+		Repository* temp = activeRepo;
+		repoMetadata.SaveRepoToTxt(*temp, temp->getFolderManager().get_current_path());
+	}
+
+	// to load user's chosen repository from txt file:
+	void load(char* txtPathName)
+	{
+		char* temp = new char[my_strlen(txtPathName) + 1];
+		
+		for (int i = 0; i < my_strlen(txtPathName) - 1 && txtPathName[i + 1] != '_'; i++)
+		{
+			temp[i] = txtPathName[i];
+		}
+
+		Repository* newRepo = new Repository(temp, folderManager.get_current_path());
+		repoMetadata.LoadRepoFromTxt(*newRepo, newRepo->getFolderManager().get_current_path());
+	}
+
+
+	Repository* findRepo(String name) {
+		for (int i = 0; i < repoCount; i++) {
+			if (this->allRepos[i]->getName() == name)
+				return this->allRepos[i];			
+		}
+		return nullptr;
+	}
+
 	~RepoManager() {
 		for (int i = 0; i < repoCount; i++) {
 			delete allRepos[i];
