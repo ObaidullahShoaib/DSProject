@@ -1,6 +1,6 @@
 #pragma once
 #include "Branch.h"
-#include "TXTFileManager.h"
+//#include "TXTFileManager.h"
 #include <iostream>
 
 class Repository {
@@ -118,19 +118,20 @@ public:
 			for (int i = 0; i < branchCount; i++) {
 				temp[i] = allBranches[i];
 			}
-			temp[branchCount] = new Branch(branchName, folderManager.get_current_path());
+			temp[branchCount] = new Branch(branchName, folderManager.get_current_path());			
+			temp[branchCount]->CopyBranchDetails(branchName, *findBranch(sourceBranchName));
 			delete[] allBranches;
 			allBranches = temp;
-						
+
 			branchCount++;
 		}		
 		
 		else
 		{
 			cout << "\nBranch already exists." << endl;
-			folderManager.delete_folder(folderManager.get_current_path() / branchName);			
+			folderManager.delete_folder(folderManager.get_current_path() / branchName);
 		}
-		folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
+		// folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
 	}
 
 	void addBranch(fs::path branchName, int index, bool branchCountSet = false)
@@ -168,5 +169,38 @@ public:
     ~Repository() {
         delete[] allBranches;
     }
+
+	void commit() {
+		activeBranch->commit();
+	}
+
+	void save() {
+		ofstream metaData = ofstream(folderManager.get_current_path() / "MetaData.txt");
+		if (metaData.is_open())
+		{
+			metaData << this->name << endl;
+			metaData << this->branchCount << endl;
+			metaData << this->activeBranch->getBranchName().string() << endl;
+			for (int i = 0; i < branchCount; i++)
+			{
+				metaData << allBranches[i]->getBranchName().string() << endl;
+			}
+			metaData.close();
+			for (int i = 0; i < branchCount; i++)
+			{
+				allBranches[i]->save();
+			}
+		}
+		else
+		{
+			cout << "Error: Could not open the file for writing." << endl;
+		}
+	}
+
+	void log() {
+		activeBranch->showCommits();
+	}
+
+
 
 };

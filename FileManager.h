@@ -31,25 +31,34 @@ public:
 		rowCount = 0;
     }
 
+    void openExistingFile(fs::path fileName)
+    {
+        inputFile.open(fileName);
+
+        if (!inputFile.is_open()) {
+            cout << "Error: Could not open the file. Please try again." << endl;
+        }
+
+        cout << "File opened successfully!" << endl;
+    }
+
     void openFile()
     {
-        do
-        {
+        do {
             cout << "Input the name of the file with extension: "; // example.csv
-            cin.ignore();
-            // reading filename into char* then converting to fs::path
+
+            // Read filename into char* then converting to fs::path
             cin.getline(file_name, 1000);
 
-            // convert char* to fs::path
-            fs::path PfileName(file_name);
-
+            // Attempt to open the file
             inputFile.open(file_name);
             CSVPath = fs::current_path();
-            if (!inputFile.is_open())
-            {
+
+            if (!inputFile.is_open()) {
                 cout << "Error: Could not open the file. Please try again." << endl;
             }
         } while (!inputFile.is_open());
+
 
         cout << "File opened successfully!" << endl;
     }

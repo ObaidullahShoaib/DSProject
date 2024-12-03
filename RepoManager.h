@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 class RepoManager {
 	Repository* activeRepo;
 	Repository** allRepos;
-	
+
 	TxtFileManager repoMetadata;
 	FolderManager folderManager;
 
@@ -18,7 +18,7 @@ class RepoManager {
 	int repoCount;
 
 public:
-	RepoManager(fs::path GitLitePath):folderManager(GitLitePath) {
+	RepoManager(fs::path GitLitePath) :folderManager(GitLitePath) {
 		activeRepo = nullptr;
 		allRepos = nullptr;
 		repoCount = 0;
@@ -32,8 +32,9 @@ public:
 		temp[repoCount] = new Repository(name, folderManager.get_current_path() / name);
 		delete[] allRepos;
 		allRepos = temp;
-		this->activeRepo = allRepos[repoCount];
+		this->activeRepo = allRepos[repoCount++];
 		
+
 	}
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
@@ -64,7 +65,7 @@ public:
 	}
 
 	/*
-	    .
+		.
 		.
 		----- SAVING AND LOADING REPOSITORY-----
 		.
@@ -111,14 +112,14 @@ public:
 	void load(char* txtPathName)
 	{
 		char* temp = new char[my_strlen(txtPathName) + 1];
-		
+
 		for (int i = 0; i < my_strlen(txtPathName) - 1 && txtPathName[i + 1] != '_'; i++)
 		{
 			temp[i] = txtPathName[i];
 		}
 
 		Repository* newRepo = new Repository(temp, folderManager.get_current_path());
-		
+
 		// repoMetadata.LoadRepoFromTxt(*newRepo, newRepo->getFolderManager().get_current_path());
 
 
@@ -165,7 +166,7 @@ public:
 	Repository* findRepo(String name) {
 		for (int i = 0; i < repoCount; i++) {
 			if (this->allRepos[i]->getName() == name)
-				return this->allRepos[i];			
+				return this->allRepos[i];
 		}
 		return nullptr;
 	}
@@ -200,5 +201,34 @@ public:
 			delete allRepos[i];
 		}
 		delete[] allRepos;
+	}
+
+	void commit() {
+		activeRepo->commit();
+	}
+
+	void saveMetaData() {
+		ofstream RepositoryMetaData = ofstream(folderManager.get_current_path() / "RepositoryMetaData.txt");
+		if (RepositoryMetaData.is_open())
+		{
+			RepositoryMetaData << activeRepo->getName() << endl;
+			RepositoryMetaData << this->repoCount << endl;
+			for (int i = 0; i < this->repoCount; i++) {
+				RepositoryMetaData << allRepos[i]->getName() << endl;
+			}
+
+			RepositoryMetaData.close();
+			for (int i = 0; i < this->repoCount; i++) {
+				allRepos[i]->save();
+			}
+		}
+		else
+		{
+			cout << "Error: Could not open the file for writing." << endl;
+		}
+	}
+
+	void log() {
+		this->activeRepo->log();
 	}
 };

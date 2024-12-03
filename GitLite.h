@@ -4,10 +4,13 @@
 class GitLite {
 	RepoManager manager;
 	FolderManager foldermanager;
+	TxtFileManager GitLiteMetadata;
+
 public:
 	GitLite():foldermanager(fs::current_path()), manager(fs::current_path() / "GitLite") {
 		fs::path GitLitepath = fs::current_path();
 		foldermanager.create_folder("GitLite");
+		//GitLiteMetadata.createFile(GitLitepath / "GitLite" / "GitLiteMetadata.txt");
 	}
 	void run() {
 		String input;
@@ -42,7 +45,33 @@ public:
 				cin >> repoName;
 				manager.load(repoName);
 			}
+			else if (input == "commit") {
+				manager.commit();
+			}
+			else if (input == "log") {
+				cout << "Checkout Log:" << endl;
+				manager.log();
+			}
 			else if (input == "exit") {
+				cout << "Exiting the program!" << endl;
+				cout << "Do you want to save the changes? (Y/N): ";
+				char choice;
+				do {
+					cin >> choice;
+					if (choice == 'Y' || choice == 'y') {
+						manager.saveMetaData();
+						cout << "Changes saved." << endl;
+						break; // Exit the loop
+					}
+					else if (choice == 'N' || choice == 'n') {
+						foldermanager.delete_folder(foldermanager.get_current_path() / "GitLite");
+						cout << "Changes not saved." << endl;
+						break; // Exit the loop
+					}
+					else {
+						cout << "Invalid choice. Please enter 'Y' or 'N': ";
+					}
+				} while (true);
 				break; // Exit the program
 			}
 			else {

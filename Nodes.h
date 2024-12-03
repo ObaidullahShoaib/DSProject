@@ -2,6 +2,9 @@
 
 #include "String.h"
 #include "Hashing.h"
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 #define FOR_FAST(start, end, step) for (int i = (start); i < (end); i += (step))
 #define FOR(start, end) for (int i = (start); i < (end); i++)
@@ -13,18 +16,38 @@ struct TreeNode {
 	T key;
 	String data;
 	int numOfChildren;
-
+	static int count;
+	fs::path nodeName;
 	// Hashes:
 	int hashType;
 	int instructorHash;
 	unsigned char shaHash[SHA256_DIGEST_LENGTH];
 
 	// Number of children by default is 2 because that will be the minimum number of children in our implementation
-	TreeNode() : numOfChildren(2) {};
+	TreeNode() : numOfChildren(2) { 
+		count++;
+		nodeName = generateNodeName();
+	}
 
 	TreeNode(T key, String data, int hashType, int numOfChildren = 2)
-		: key(key), data(data), numOfChildren(2), hashType(hashType) {}
-};
+		: key(key), data(data), numOfChildren(2), hashType(hashType) {
+		nodeName = generateNodeName();
+		count++;
+	}
+	~TreeNode() { count--; }
+	virtual TreeNode<T>* getChild(int index) = 0;
+	virtual TreeNode<T>* getParent() = 0;
+
+private:
+	fs::path generateNodeName() {
+		std::ostringstream oss;
+		oss << "Node_" << count << ".txt";
+		return oss.str();
+	}
+}; 
+
+template <typename T>
+int TreeNode<T>::count = 0;  // Initialize static count to 0
 
 template<typename T>
 struct AVLNode : public TreeNode<T> {
@@ -42,6 +65,8 @@ struct AVLNode : public TreeNode<T> {
 
 	// Sets both descendants to nullptr:
 	void nullAllDescendants() { FOR(0, this->numOfChildren) this->descendants[i] = nullptr; }
+	TreeNode<T>* getChild(int index) override { return this->descendants[index]; }
+	TreeNode<T>* getParent() override { return this->parent; }
 };
 
 template <typename T>
@@ -56,4 +81,6 @@ public:
 		: color(0), TreeNode<T>(key, data, hashType), parent(parent) { this->nullAllDescendants(); }
 
 	void nullAllDescendants() { FOR(0, this->numOfChildren) this->descendants[i] = nullptr; }
+	TreeNode<T>* getChild(int index) override { return this->descendants[index]; }
+	TreeNode<T>* getParent() override { return this->parent; }
 };

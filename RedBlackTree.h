@@ -220,6 +220,45 @@ public:
 
     ~RedBlackTree() { clearAll(root); }
 
+	RedBlackTree(const RedBlackTree<T>& other) {
+		root = copyTree(other.root);
+	}
+
+    //assignment operator
+	RedBlackTree<T>& operator=(const RedBlackTree<T>& other) {
+		if (this != &other) {
+			deleteTree();
+			root = copyTree(other.root);
+		}
+		return *this;
+	}
+
+    RBNode<T>* copyTree(const RBNode<T>* other) {
+        if (other == nullptr) return nullptr;
+
+        // Create a new node with the same key, data, and hash type
+        RBNode<T>* newNode = new RBNode<T>(other->key, other->data, other->hashType);
+
+        // Copy height
+        newNode->color = other->color;
+
+        // Recursively copy left and right descendants
+        newNode->descendants[0] = copyTree(other->descendants[0]);
+        newNode->descendants[1] = copyTree(other->descendants[1]);
+
+        // Set parent pointers for copied descendants
+        if (newNode->descendants[0])
+            newNode->descendants[0]->parent = newNode;
+        if (newNode->descendants[1])
+            newNode->descendants[1]->parent = newNode;
+
+        return newNode;
+    }
+
+    RedBlackTree<T>* clone() override {
+        return new RedBlackTree<T>(*this);
+    }
+
     void deleteTree() override {
 		clearAll(root);
 		root = nullptr;
@@ -327,6 +366,11 @@ public:
         }
         inorderHelper(root);
         cout << endl;
+    }
+
+    TreeNode<T>* getRoot() override {
+		return root;
+
     }
 
 	//TreeNode<T>* search(const T& key) override {

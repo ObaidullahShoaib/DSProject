@@ -16,6 +16,7 @@ private:
 		return node;
 	}
 
+
     int getHeight(AVLNode<T>* node) const {
         if (node == nullptr)
             return -1;
@@ -171,10 +172,55 @@ private:
     }
 
 public:
+    TreeNode<T>* getRoot() override {
+        return root;
+    }
     AVLTree() : root(nullptr) {}
 
     ~AVLTree() {
         clearAll(root);
+    }
+
+    AVLTree(const AVLTree<T>& other) : root(nullptr) {
+        root = copyTree(other.root);
+    }
+
+    //assignment operator
+    AVLTree<T>& operator=(const AVLTree<T>& other) {
+        if (this != &other) {
+            // Clear existing tree
+            clearAll(root);
+
+            // Copy the other tree
+            root = copyTree(other.root);
+        }
+        return *this;
+    }
+
+    AVLNode<T>* copyTree(const AVLNode<T>* other) {
+        if (other == nullptr) return nullptr;
+
+        // Create a new node with the same key, data, and hash type
+        AVLNode<T>* newNode = new AVLNode<T>(other->key, other->data, other->hashType);
+
+        // Copy height
+        newNode->height = other->height;
+
+        // Recursively copy left and right descendants
+        newNode->descendants[0] = copyTree(other->descendants[0]);
+        newNode->descendants[1] = copyTree(other->descendants[1]);
+
+        // Set parent pointers for copied descendants
+        if (newNode->descendants[0])
+            newNode->descendants[0]->parent = newNode;
+        if (newNode->descendants[1])
+            newNode->descendants[1]->parent = newNode;
+
+        return newNode;
+    }
+
+    AVLTree<T>* clone() override {
+        return new AVLTree<T>(*this);
     }
 
     void deleteTree() override {
