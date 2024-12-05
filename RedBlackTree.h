@@ -372,20 +372,4 @@ public:
 		return root;
 
     }
-
-	//TreeNode<T>* search(const T& key) override {
-	//	RBNode<T>* current = root;
-	//	while (current != nullptr) {
-	//		if (current->key == key) {
-	//			return current;
-	//		}
-	//		else if (current->key < key) {
-	//			current = current->descendants[1];
-	//		}
-	//		else {
-	//			current = current->descendants[0];
-	//		}
-	//	}
-	//	return new RBNode<T>();
-	//}
 };

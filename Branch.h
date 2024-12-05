@@ -53,8 +53,8 @@ class Branch {
 			fileReader.getInformation(key, data, i);
 			tree1->insert(key, data, hashType);
 		}
-		cout << "Inorder traversal of AVL Tree: " << endl;
-		tree1->inorder();
+		//cout << "Inorder traversal of AVL Tree: " << endl;
+		//tree1->inorder();
 	}
 
 public:

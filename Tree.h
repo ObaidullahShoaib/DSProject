@@ -1,6 +1,6 @@
 #pragma once
 #include "String.h"
-
+#include "Nodes.h"
 template <typename T>
 class Tree {
 public:
