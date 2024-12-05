@@ -11,6 +11,7 @@ class TxtFileManager : public FileManager
 {
 public:
     TxtFileManager() : FileManager() {}
+
     void readFileData() override
     {
         // Open the file for reading
