@@ -4,6 +4,7 @@
 template <typename T>
 class AVLTree :public Tree<T> {
 	AVLNode<T>* root;
+	int count;
 public:
 	AVLTree() : root(nullptr) {}
 	AVLTree(const AVLTree& other) {
@@ -20,7 +21,8 @@ public:
 		deleteTree();
 	}
 	void insert(T key, String data, int hashType) override {
-		root = insertHelper(root, key, data, hashType);
+		count++;
+		root = insertHelper(root, key, data, hashType, this->count);
 	}
 	void remove(T key) override {
 		root = removeHelper(root, key);
@@ -123,17 +125,17 @@ private:
 	}
 
 
-	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType) {
+	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType, int count) {
 		if (node == nullptr) {
-			return new AVLNode<T>(key, data, hashType);
+			return new AVLNode<T>(key, data, hashType, count);
 		}
 		if (key < node->key) {
-			node->descendants[0] = insertHelper(node->descendants[0], key, data, hashType);
+			node->descendants[0] = insertHelper(node->descendants[0], key, data, hashType, count);
 			// Explicitly set parent
 			setParent(node->descendants[0], node);
 		}
 		else if (key >= node->key) {
-			node->descendants[1] = insertHelper(node->descendants[1], key, data, hashType);
+			node->descendants[1] = insertHelper(node->descendants[1], key, data, hashType, count);
 			// Explicitly set parent
 			setParent(node->descendants[1], node);
 		}
@@ -204,7 +206,7 @@ private:
 	AVLNode<T>* copyTree(const AVLNode<T>* other) {
 		if (other == nullptr) return nullptr;
 
-		AVLNode<T>* newNode = new AVLNode<T>(other->key, other->data, other->hashType);
+		AVLNode<T>* newNode = new AVLNode<T>(other->key, other->data, other->hashType, other->id);
 
 		newNode->height = other->height;
 

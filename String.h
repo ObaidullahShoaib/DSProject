@@ -297,3 +297,16 @@ char* my_strtok(char* str, const char* delim) {
 	}
 	return ret;
 }
+
+void my_strcat(char* destination, const char* source) {
+    while (*destination) {
+        destination++;
+    }
+
+    while (*source) {
+        *destination = *source;
+        destination++;
+        source++;
+    }
+    *destination = '\0';
+}

@@ -4,6 +4,7 @@ template <typename T>
 class RedBlackTree : public Tree<T> {
 private:
     RBNode<T>* root;
+    int count;
 
     void rotateLeft(RBNode<T>*& node) {
         RBNode<T>* child = node->descendants[1];
@@ -237,7 +238,7 @@ public:
         if (other == nullptr) return nullptr;
 
         // Create a new node with the same key, data, and hash type
-        RBNode<T>* newNode = new RBNode<T>(other->key, other->data, other->hashType);
+        RBNode<T>* newNode = new RBNode<T>(other->key, other->data, other->hashType, other->id);
 
         // Copy height
         newNode->color = other->color;
@@ -266,7 +267,8 @@ public:
 
 
     void insert(T key, String data, int hashType) override {
-        RBNode<T>* node = new RBNode<T>(key, data, hashType);
+        count++;
+        RBNode<T>* node = new RBNode<T>(key, data, hashType, this->count);
         RBNode<T>* parent = nullptr;
         RBNode<T>* current = root;
 

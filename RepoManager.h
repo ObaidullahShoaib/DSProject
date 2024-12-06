@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 class RepoManager {
 	Repository* activeRepo;
 	Repository** allRepos;
-	
+
 	TxtFileManager repoMetadata;
 	FolderManager folderManager;
 	fs::path baseGitLitePath;
@@ -18,13 +18,17 @@ class RepoManager {
 	int repoCount;
 
 public:
-	RepoManager(fs::path GitLitePath):folderManager(GitLitePath) {
+	RepoManager(fs::path GitLitePath) :folderManager(GitLitePath) {
 		this->baseGitLitePath = GitLitePath;
 		activeRepo = nullptr;
 		allRepos = nullptr;
 		repoCount = 0;
 	}
 	void createRepo(fs::path name) {
+		if (exists(folderManager.get_current_path() / name)) {
+			cout << "Repository already exists" << endl;
+			return;
+		}
 		Repository** temp = new Repository * [repoCount + 1];
 		for (int i = 0; i < repoCount; i++) {
 			temp[i] = allRepos[i];
@@ -34,7 +38,7 @@ public:
 		delete[] allRepos;
 		allRepos = temp;
 		this->activeRepo = allRepos[repoCount];
-		this->repoCount++;		
+		this->repoCount++;
 	}
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
@@ -66,7 +70,7 @@ public:
 	}
 
 	/*
-	    .
+		.
 		.
 		----- SAVING AND LOADING REPOSITORY-----
 		.
@@ -119,11 +123,11 @@ public:
 	void deleteRepo(fs::path pathName)
 	{
 		String name = pathName.string().c_str();
-		for (int i = 0; i < repoCount; i++) 
+		for (int i = 0; i < repoCount; i++)
 		{
-			if (allRepos[i]->getName() == name) 
+			if (allRepos[i]->getName() == name)
 			{
-				
+
 				folderManager.delete_folder(allRepos[i]->getFolderManager().get_current_path());
 				delete allRepos[i];
 				for (int j = i; j < repoCount - 1; j++)
@@ -135,7 +139,7 @@ public:
 				return;
 			}
 		}
-		
+
 		cout << "\nRepository not found" << endl;
 	}
 
@@ -143,7 +147,7 @@ public:
 	void load(char* txtPathName)
 	{
 		char* repoName = new char[my_strlen(txtPathName) + 1];
-		
+
 		int i;
 		for (i = 0; i < my_strlen(txtPathName) - 1 && txtPathName[i] != '_'; i++)
 		{
@@ -161,23 +165,23 @@ public:
 
 		// delete existing repository 
 		deleteRepo(repoName);
- 		fs::path pathToCreate = folderManager.get_current_path();
+		fs::path pathToCreate = folderManager.get_current_path();
 		fs::current_path(pathToCreate);
 		folderManager.create_folder(repoName);
 
 
 		fs::path repoPath = repoName;
 		repoPath += "_data.txt";
-		
+
 		fs::path repoCopyFolderName = repoName;
-		repoCopyFolderName += "_copy";		
+		repoCopyFolderName += "_copy";
 
 		// extracting path of metadata file from the old state
-		pathToCreate = this->baseGitLitePath / repoCopyFolderName / repoPath;		
+		pathToCreate = this->baseGitLitePath / repoCopyFolderName / repoPath;
 
 		char* tempRepoName = new char[256];
 		char* tempRepoPath = new char[256];
-		
+
 		// load data from file
 		this->repoMetadata.inputFile = ifstream(pathToCreate);
 		this->repoMetadata.inputFile;
@@ -212,7 +216,7 @@ public:
 
 		this->repoMetadata.inputFile.getline(line, 256);
 		newRepo->setBranchCount(atoi(line));
-		
+
 		// wasting 1 line:
 		this->repoMetadata.inputFile.getline(line, 256);
 
@@ -251,7 +255,7 @@ public:
 	Repository* findRepo(String name) {
 		for (int i = 0; i < repoCount; i++) {
 			if (this->allRepos[i]->getName() == name)
-				return this->allRepos[i];			
+				return this->allRepos[i];
 		}
 		return nullptr;
 	}

@@ -16,7 +16,7 @@ struct TreeNode {
 	T key;
 	String data;
 	int numOfChildren;
-	static int count;
+	int id;
 	fs::path nodeName;
 	// Hashes:
 	int hashType;
@@ -24,30 +24,26 @@ struct TreeNode {
 	unsigned char shaHash[SHA256_DIGEST_LENGTH];
 
 	// Number of children by default is 2 because that will be the minimum number of children in our implementation
-	TreeNode() : numOfChildren(2) {
-		count++;
+	TreeNode(int id) : numOfChildren(2), id(id) {
 		nodeName = generateNodeName();
 	}
 
-	TreeNode(T key, String data, int hashType, int numOfChildren = 2)
-		: key(key), data(data), numOfChildren(2), hashType(hashType) {
+	TreeNode(T key, String data, int hashType, int id ,int numOfChildren = 2)
+		: key(key), data(data), numOfChildren(2), hashType(hashType), id(id) {
 		nodeName = generateNodeName();
-		count++;
 	}
-	~TreeNode() { count--; }
+	~TreeNode() { }
 	virtual TreeNode<T>* getChild(int index) = 0;
 	virtual TreeNode<T>* getParent() = 0;
 
 private:
 	fs::path generateNodeName() {
 		std::ostringstream oss;
-		oss << "Node_" << count << ".txt";
+		oss << "Node_" << id << ".txt";
 		return oss.str();
 	}
 };
 
-template <typename T>
-int TreeNode<T>::count = 0;  // Initialize static count to 0
 
 template<typename T>
 struct AVLNode : public TreeNode<T> {
@@ -60,7 +56,7 @@ struct AVLNode : public TreeNode<T> {
 
 	// Constructors:
 	AVLNode() : height(0), parent(nullptr) { this->nullAllDescendants(); }
-	AVLNode(T key, String data, int hashType) : height(0), TreeNode<T>(key, data, hashType), parent(nullptr) { this->nullAllDescendants(); }
+	AVLNode(T key, String data, int hashType, int id) : height(0), TreeNode<T>(key, data, hashType, id), parent(nullptr) { this->nullAllDescendants(); }
 
 
 	// Sets both descendants to nullptr:
@@ -76,9 +72,9 @@ public:
 	RBNode* parent;
 	RBNode* descendants[2];
 
-	RBNode() : color(0), parent(nullptr) { this->nullAllDescendants(); }
-	RBNode(T key, String data, int hashType, RBNode* parent = nullptr)
-		: color(0), TreeNode<T>(key, data, hashType), parent(parent) { this->nullAllDescendants(); }
+	RBNode(int id) : color(0), parent(nullptr) { this->nullAllDescendants(); }
+	RBNode(T key, String data, int hashType, int id ,RBNode* parent = nullptr)
+		: color(0), TreeNode<T>(key, data, hashType, id), parent(parent) { this->nullAllDescendants(); }
 
 	void nullAllDescendants() { FOR(0, this->numOfChildren) this->descendants[i] = nullptr; }
 	TreeNode<T>* getChild(int index) override { return this->descendants[index]; }
