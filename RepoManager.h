@@ -151,6 +151,14 @@ public:
 		}
 		repoName[i] = '\0';
 
+		// check if any folder exist with repoName or not
+		if (!fs::exists(folderManager.get_current_path() / repoName))
+		{
+			cout << "\nRepository not found" << endl;
+			return;
+		}
+
+
 		// delete existing repository 
 		deleteRepo(repoName);
  		fs::path pathToCreate = folderManager.get_current_path();
