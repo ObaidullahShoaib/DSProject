@@ -163,7 +163,7 @@ public:
 		if (branchMetaData.is_open())
 		{
 			branchMetaData << this->branchName.string() << endl;
-			branchMetaData << this->treeType << endl;
+			//branchMetaData << this->treeType << endl;
 			branchMetaData << this->hashType << endl;
 			//branchMetaData << this->commitLog.file_name << endl;
 			branchMetaData << this->tree1->getRoot()->nodeName.string() << endl;
