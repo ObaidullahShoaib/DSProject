@@ -310,3 +310,32 @@ void my_strcat(char* destination, const char* source) {
     }
     *destination = '\0';
 }
+
+int stringToInt(const std::string& str) {
+    int result = 0;
+    int multiplier = 1;
+
+    for (int i = str.length() - 1; i >= 0; --i) {
+        int digit = str[i] - '0';
+        result += digit * multiplier;
+        multiplier *= 10;
+    }
+
+    return result;
+}
+
+
+string intToString(int num) {
+	if (num == 0) {
+		return "0";
+	}
+
+	string result;
+	while (num > 0) {
+		char digit = num % 10 + '0';
+		result = digit + result;
+		num /= 10;
+	}
+
+	return result;
+}

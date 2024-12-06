@@ -1,4 +1,5 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <fstream>
 #include "String.h"
@@ -9,13 +10,14 @@
 #include "FolderManager.h"
 #include "CSVFileManager.h"
 #include "TXTFileManager.h"
+#include <ctime>
 using namespace std;
 
 class Branch {
 	CSVFileManager fileReader;
 	FolderManager folderManager;
 	TxtFileManager commitLog;
-
+	int commitCount = 0;
 	Tree<String>* tree1;
 	
 	fs::path branchName;
@@ -182,11 +184,30 @@ public:
 	}
 
 	void commit() {
+		commitCount++;
+		string index = intToString(commitCount);
+		string commitNo = "Commit# " + index + ":";
+		const char* i = commitNo.c_str();
+		char* i1 = new char[commitNo.length() + 1];
+		my_strcpy(i1, i);
 		char* msg = new char[1000];
 		cout << "Enter message to commit" << endl;
 		cin.ignore();
 		cin.getline(msg, 1000);
-		commitLog.writeFileData(folderManager.get_current_path() / this->branchName / "commitLog.txt", msg);
+
+		char* timeStamp = getTimeStamp();
+		// append timeStamp with msg and store it in char* data
+		char* data = new char[1000];
+		my_strcpy(data, timeStamp);
+		my_strcat(data, msg);
+		commitLog.writeFileData(folderManager.get_current_path() / this->branchName / "commitLog.txt", i1);
+		commitLog.writeFileData(folderManager.get_current_path() / this->branchName / "commitLog.txt", data);
+	}
+
+	char* getTimeStamp() {
+		time_t now = time(0);
+		char* dt = ctime(&now);
+		return dt;
 	}
 
 	void save() {
