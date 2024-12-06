@@ -156,7 +156,7 @@ public:
 		for (int i = 0; i < branchCount; i++) {
 			if (allBranches[i]->getBranchName() == branchName) {
 				activeBranch = allBranches[i];
-				fs::current_path(folderManager.get_current_path() / activeBranch->getBranchName());
+				//fs::current_path(folderManager.get_current_path() / activeBranch->getBranchName());
 				cout << "Switched to branch: " << fs::current_path().string() << endl;
 				return;
 			}
