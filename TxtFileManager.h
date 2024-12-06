@@ -11,8 +11,7 @@ class TxtFileManager : public FileManager
 {
 public:
     TxtFileManager() : FileManager() {}
-
-    void readFileData() override
+    void readFileData(int&) override
     {
         // Open the file for reading
         openFile();
@@ -29,7 +28,7 @@ public:
         closeFile();
     }
 
-	// append data to the file
+    // append data to the file
     void writeFileData() override
     {
         // Open the file for writing (append mode)
@@ -107,7 +106,8 @@ public:
     void displayFileData() override
     {
         // Use the readFileData() function to read and display the file data
-        readFileData();
+        int x = 0;
+        readFileData(x);
     }
 
     void copyFile(const std::filesystem::path& destination)

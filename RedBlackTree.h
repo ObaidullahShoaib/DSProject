@@ -1,12 +1,12 @@
 #include "Nodes.h"
 #include "Tree.h"
 template <typename T>
-class RedBlackTree: public Tree<T> {
+class RedBlackTree : public Tree<T> {
 private:
     RBNode<T>* root;
 
     void rotateLeft(RBNode<T>*& node) {
-        RBNode<T>* child = node->descendants[1]; 
+        RBNode<T>* child = node->descendants[1];
         node->descendants[1] = child->descendants[0];
         if (node->descendants[1] != nullptr)
             node->descendants[1]->parent = node;
@@ -45,8 +45,8 @@ private:
             parent = node->parent;
             grandparent = parent->parent;
 
-            if (parent == grandparent->descendants[0]) { 
-                RBNode<T>* uncle = grandparent->descendants[1]; 
+            if (parent == grandparent->descendants[0]) {
+                RBNode<T>* uncle = grandparent->descendants[1];
                 if (uncle != nullptr && uncle->color == 0) {
                     grandparent->color = 0;
                     parent->color = 1;
@@ -64,7 +64,7 @@ private:
                     node = parent;
                 }
             }
-            else { 
+            else {
                 RBNode<T>* uncle = grandparent->descendants[0];
                 if (uncle != nullptr && uncle->color == 0) {
                     grandparent->color = 0;
@@ -89,13 +89,13 @@ private:
 
     void fixDelete(RBNode<T>*& node, RBNode<T>*& root) {
         while (node != root && (node == nullptr || node->color == 1)) { // 1: Black
-            if (node == node->parent->descendants[0]) { 
+            if (node == node->parent->descendants[0]) {
                 RBNode<T>* sibling = node->parent->descendants[1];
 
                 // Case 1: Sibling is red
-                if (sibling->color == 0) { 
+                if (sibling->color == 0) {
                     sibling->color = 1;
-                    node->parent->color = 0; 
+                    node->parent->color = 0;
                     rotateLeft(node->parent);
                     sibling = node->parent->descendants[1];
                 }
@@ -119,9 +119,9 @@ private:
 
                     // Case 4: Sibling's right child is red
                     sibling->color = node->parent->color;
-                    node->parent->color = 1; 
+                    node->parent->color = 1;
                     if (sibling->descendants[1] != nullptr) {
-                        sibling->descendants[1]->color = 1; 
+                        sibling->descendants[1]->color = 1;
                     }
                     rotateLeft(node->parent);
                     node = root;
@@ -132,7 +132,7 @@ private:
 
                 // Case 1: Sibling is red
                 if (sibling->color == 0) {
-                    sibling->color = 1; 
+                    sibling->color = 1;
                     node->parent->color = 0;
                     rotateRight(node->parent);
                     sibling = node->parent->descendants[0];
@@ -205,7 +205,7 @@ private:
     }
 
 
-    void clearAll(RBNode<T>* node){
+    void clearAll(RBNode<T>* node) {
         if (node != nullptr) {
             clearAll(node->descendants[0]);
             clearAll(node->descendants[1]);
@@ -216,22 +216,22 @@ private:
 
 public:
 
-    RedBlackTree(): root(nullptr){}
+    RedBlackTree() : root(nullptr) {}
 
     ~RedBlackTree() { clearAll(root); }
 
-	RedBlackTree(const RedBlackTree<T>& other) {
-		root = copyTree(other.root);
-	}
+    RedBlackTree(const RedBlackTree<T>& other) {
+        root = copyTree(other.root);
+    }
 
     //assignment operator
-	RedBlackTree<T>& operator=(const RedBlackTree<T>& other) {
-		if (this != &other) {
-			deleteTree();
-			root = copyTree(other.root);
-		}
-		return *this;
-	}
+    RedBlackTree<T>& operator=(const RedBlackTree<T>& other) {
+        if (this != &other) {
+            deleteTree();
+            root = copyTree(other.root);
+        }
+        return *this;
+    }
 
     RBNode<T>* copyTree(const RBNode<T>* other) {
         if (other == nullptr) return nullptr;
@@ -260,8 +260,8 @@ public:
     }
 
     void deleteTree() override {
-		clearAll(root);
-		root = nullptr;
+        clearAll(root);
+        root = nullptr;
     }
 
 
@@ -369,7 +369,7 @@ public:
     }
 
     TreeNode<T>* getRoot() override {
-		return root;
+        return root;
 
     }
 };

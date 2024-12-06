@@ -55,7 +55,7 @@ public:
         }
     }
 
-    void delete_folder(const fs::path& folder_name)
+    /*void delete_folder(const fs::path& folder_name)
     {
         fs::path folderPath = current_path / folder_name;
         if (!fs::exists(folderPath))
@@ -71,6 +71,27 @@ public:
             else
             {
                 cout << "\nFailed to delete directory: " << folderPath << endl;
+            }
+        }
+    }*/
+    void delete_folder(const fs::path& folder_name) {
+        try {
+            fs::path folderPath = folder_name;
+            if (!fs::exists(folderPath)) {
+                std::cout << "Directory does not exist: " << folderPath << std::endl;
+                return;
+            }
+
+            size_t removedCount = fs::remove_all(folderPath);
+            std::cout << "Directory deleted successfully: " << folderPath
+                << " (Files and subdirectories removed: " << removedCount << ")" << std::endl;
+        }
+        catch (const fs::filesystem_error& e) {
+            std::cerr << "Filesystem error: " << e.what() << std::endl;
+            std::cerr << "Error code: " << e.code() << std::endl;
+            std::cerr << "Path: " << e.path1() << std::endl;
+            if (e.path2() != "") {
+                std::cerr << "Additional path info: " << e.path2() << std::endl;
             }
         }
     }

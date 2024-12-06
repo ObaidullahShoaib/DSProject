@@ -21,7 +21,7 @@ public:
 
     // virtual functions to be implemented in child classes
     virtual void displayFileData() = 0;
-    virtual void readFileData() = 0;
+    virtual void readFileData(int&) = 0;
     virtual void writeFileData() = 0;
 
     //constructor
@@ -31,40 +31,50 @@ public:
 		rowCount = 0;
     }
 
-    void openExistingFile(fs::path fileName)
+    void openFile(fs::path CSVPath = "")
     {
-        inputFile.open(fileName);
+        if (CSVPath == "")
+        {
+            int c = 1;
+            do
+            {
+                cout << "Input the name of the file with extension: "; // example.csv                
+                // reading filename into char* then converting to fs::path
 
-        if (!inputFile.is_open()) {
-            cout << "Error: Could not open the file. Please try again." << endl;
-        }
+                if (c == 1)
+                    cin.ignore();
+                cin.getline(this->file_name, 1000);
+                c++;
 
-        cout << "File opened successfully!" << endl;
-    }
-
-    void openFile()
-    {
-        do {
-            cout << "Input the name of the file with extension: "; // example.csv
-
-            // Read filename into char* then converting to fs::path
-            cin.getline(file_name, 1000);
-
-            // Attempt to open the file
-            inputFile.open(file_name);
-            CSVPath = fs::current_path();
-
-            if (!inputFile.is_open()) {
+                // convert char* to fs::path
+                fs::path PfileName(this->file_name);               
+                CSVPath = fs::current_path() / file_name;
+                this->setCSVPath(CSVPath);
+                inputFile.open(CSVPath != "" ? CSVPath : this->file_name);
+                
+            } while (!inputFile.is_open());
+            if (!inputFile.is_open())
                 cout << "Error: Could not open the file. Please try again." << endl;
-            }
-        } while (!inputFile.is_open());
-
-
-        cout << "File opened successfully!" << endl;
+            else
+                cout << "File opened successfully!" << endl;
+            return;
+        }
+        if (inputFile.is_open())
+			inputFile.close();
+        inputFile.open(CSVPath != "" ? CSVPath: this->file_name);
+        if (!inputFile.is_open())
+            cout << "Error: Could not open the file. Please try again." << endl;
+        else
+            cout << "File opened successfully!" << endl;
     }
 
     fs::path getCSVPath() {
         return this->CSVPath;
+    }
+
+    void setCSVPath(fs::path CSVPath)
+    {
+        this->CSVPath = CSVPath;
     }
 
     void deleteFile()
@@ -103,32 +113,6 @@ public:
         catch (const std::filesystem::filesystem_error& e) 
         {
             cout << "Error copying file: " << e.what() << endl;
-        }
-    }
-
-    void readFileData(fs::path file_name, char*& data)
-    {
-        // Open the file for reading
-        ifstream inputFile(file_name);
-        if (inputFile.is_open())
-        {
-            char* line = new char[5000];           
-
-            inputFile >> line;
-            while (line) 
-            {
-				my_strcpy(data, line);
-                //line = my_strcat(line, "\n");
-				delete[] line;
-				line = new char[5000];
-				inputFile >> line;
-            }
-
-            inputFile.close(); // Close the file
-            cout << "Data read from the file successfully." << endl;
-        }
-        else {
-            cout << "Error: Could not open the file for reading." << endl;
         }
     }
 

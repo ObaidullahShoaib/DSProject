@@ -2,7 +2,7 @@
 #include "Tree.h"
 // AVl class that also manage the parent pointer
 template <typename T>
-class AVLTree:public Tree<T> {
+class AVLTree :public Tree<T> {
 	AVLNode<T>* root;
 public:
 	AVLTree() : root(nullptr) {}
@@ -62,7 +62,7 @@ private:
 		if (node == nullptr) return;
 		node->height = 1 + max(getHeight(node->descendants[0]), getHeight(node->descendants[1]));
 	}
-	
+
 	void setParent(AVLNode<T>* child, AVLNode<T>* parent) {
 		if (child != nullptr) {
 			child->parent = parent;

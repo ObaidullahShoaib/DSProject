@@ -13,101 +13,133 @@ using namespace std;
 
 class Branch {
 	CSVFileManager fileReader;
-	Tree<String>* tree1;
 	FolderManager folderManager;
-	fs::path branchName;
 	TxtFileManager commitLog;
+
+	Tree<String>* tree1;
+	
+	fs::path branchName;
+	fs::path csvPath;
+
 	String treeType;
 
 	int hashType;
 
-	void initializeTree(int rowCount) {
-		int choice;
-		do {
-			cout << "Enter 1 for Red Black Tree\nEnter 2 for AVL Tree\nEnter 3 for B-Tree\nChoice: ";
-			cin >> choice;
 
-			if (choice == 1) {
+	/*
+	* 
+	* 
+	 --------    Function Name: initializeTree    --------
+	*
+	*
+	*/
+
+	void initializeTree(String& treeType, int rowCount)
+	{	
+		if (treeType == "")
+		{
+			int choice;
+			do {
+				cout << "Enter 1 for Red Black Tree\nEnter 2 for AVL Tree\nEnter 3 for B-Tree\nChoice: ";
+				cin >> choice;
+
+				if (choice == 1) {
+					tree1 = new RedBlackTree<String>();
+					treeType = "RedBlackTree";
+					break; // Exit the loop
+				}
+				else if (choice == 2) {
+					tree1 = new AVLTree<String>();
+					treeType = "AVLTree";
+					break; // Exit the loop
+				}
+				// Uncomment this block if BTree option is needed
+				// else if (choice == 3) {
+				//     tree1 = new B-Tree<String>();
+				//	   treeType = "BTree";
+				//     break; // Exit the loop
+				// }
+				else {
+					cout << "Invalid choice. Please enter a valid option.\n";
+				}
+			} while (true);
+		}
+
+		else
+		{
+			if (treeType == "RedBlackTree")
+			{
 				tree1 = new RedBlackTree<String>();
-				treeType = "RedBlackTree";
-				break; // Exit the loop
 			}
-			else if (choice == 2) {
+			else if (treeType == "AVLTree")
+			{
 				tree1 = new AVLTree<String>();
-				treeType = "AVLTree";
-				break; // Exit the loop
 			}
 			// Uncomment this block if BTree option is needed
-			// else if (choice == 3) {
-			//     tree1 = new B-Tree<String>();
-			//	   treeType = "BTree";
-			//     break; // Exit the loop
+			// else if (treeType == "BTree")
+			// {
+			// 	tree1 = new B-Tree<String>();
 			// }
-			else {
-				cout << "Invalid choice. Please enter a valid option.\n";
-			}
-		} while (true);
+		}
 
+
+		// CONSTRUCTING THE TREE:
 		for (int i = 0; i < rowCount; i++) {
 			String key, data;
 			fileReader.getInformation(key, data, i);
 			tree1->insert(key, data, hashType);
 		}
+
+
 		//cout << "Inorder traversal of AVL Tree: " << endl;
 		//tree1->inorder();
 	}
 
-public:
-	// Branch(fs::path repoPath):folderManager(repoPath){}
-	fs::path getBranchName() {
-		return this->branchName;
-	}
 
-	Branch(fs::path branchName, fs::path repoPath) : branchName(branchName), tree1(nullptr), folderManager(repoPath) {
+
+
+
+public:
+	/*
+	*
+	*
+	 --------    BRANCH Constructor    --------
+	*
+	*
+	*/
+
+	Branch(fs::path branchName, String& treeType,int& columnNo, fs::path repoPath, fs::path csvPath = "", bool shouldInputTreeType = true)
+		: branchName(branchName), tree1(nullptr), folderManager(repoPath), treeType(treeType)
+	{
 		folderManager.create_folder(this->branchName);
 		folderManager.create_folder(folderManager.get_current_path() / this->branchName / "Nodes");
 		commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
+		
+		this->fileReader.setCSVPath(csvPath);
+
 		if (branchName == "main")
 		{
-			fs::path tempPath;
-			init(tempPath);
-			fileReader.copy_file(fileReader.getCSVPath() / fileReader.file_name, repoPath / this->branchName);
-		}
+			init(treeType, columnNo, csvPath, shouldInputTreeType);
+			fileReader.copy_file(fileReader.getCSVPath(), repoPath / this->branchName);
+			
+		}		
 	}
 
-	fs::path getCSVPath()
-	{
-		return fileReader.getCSVPath() / fileReader.file_name;
-	}
-
-	void CopyBranchDetails(fs::path newName, Branch& source) {
-		this->branchName = newName;
-		//this->folderManager.create_folder(folderManager.get_current_path() / branchName / "Nodes");
-		this->folderManager.copy_folder(folderManager.get_current_path() / branchName / "Nodes", folderManager.get_current_path() / source.branchName / "Nodes");
-		//this->commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
-		fileReader.copy_file(source.getCSVPath(), folderManager.get_current_path() / this->branchName);
-		this->treeType = source.treeType;
-		this->hashType = source.hashType;
-		this->tree1 = source.tree1->clone();
-
-	}
-
-	~Branch() {
-		if (tree1) {
-			tree1->deleteTree();
-			delete tree1;
-		}
-	}
-
-	void init(fs::path sourceFile, bool openExisting = false) {
-		if (!openExisting)
-			fileReader.openFile();
-		else
-			fileReader.openExistingFile(sourceFile);
-
-		fileReader.readFileData();
+	/*
+	* 
+	* 
+	 --------    Function Name: init    --------
+	*
+	*
+	*/
+	void init(String& treeType, int& columnNo, fs::path csvPath = "", bool openExisting = false) {
+		fileReader.openFile(csvPath);
+		this->setCSVPath();
+		fileReader.readFileData(columnNo);
+		
 		int rowCount = fileReader.getRowCount();
-		initializeTree(rowCount);
+		
+		initializeTree(treeType, rowCount);
 		createNodeFile(tree1->getRoot());
 	}
 
@@ -117,7 +149,6 @@ public:
 		createNodeFile(root->getChild(0));
 		//////////////////////////////////////////////////////////////////////////////
 		fs::path fileName = folderManager.get_current_path() / this->branchName / "Nodes" / root->nodeName;
-
 		ofstream outputFile;
 		outputFile.open(fileName);
 		if (!outputFile)
@@ -163,21 +194,77 @@ public:
 		if (branchMetaData.is_open())
 		{
 			branchMetaData << this->branchName.string() << endl;
-			//branchMetaData << this->treeType << endl;
+			branchMetaData << this->treeType << endl;
 			branchMetaData << this->hashType << endl;
 			//branchMetaData << this->commitLog.file_name << endl;
 			branchMetaData << this->tree1->getRoot()->nodeName.string() << endl;
 			branchMetaData.close();
-
 		}
 		else
 		{
 			cout << "Error: Could not open the file for writing." << endl;
 		}
 	}
-
 	void showCommits() {
 		commitLog.displayFileData();
+	}
+
+
+	/*
+	* 
+	* 
+	 --------    Function Name: Copy Branch Details    --------
+	*
+	*
+	*/
+
+	void CopyBranchDetails(fs::path newName, Branch& source) {
+		this->branchName = newName;
+		
+		//this->folderManager.create_folder(folderManager.get_current_path() / branchName / "Nodes");
+		this->folderManager.copy_folder(folderManager.get_current_path() / branchName / "Nodes", folderManager.get_current_path() / source.branchName / "Nodes");
+		
+		//this->commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
+		fileReader.copy_file(source.getCSVPath(), folderManager.get_current_path() / this->branchName);
+		this->treeType = source.treeType;
+		this->hashType = source.hashType;
+		this->tree1 = source.tree1->clone();
+	}
+
+
+	/*
+	* 
+	* 
+	 --------    Getters, Setters:    --------
+	*
+	*
+	*/
+	fs::path getBranchName() {
+		return branchName;
+	}
+
+	fs::path getCSVPath()
+	{
+		return this->csvPath;
+	}
+
+	void setCSVPath() 
+	{
+		this->csvPath = this->fileReader.getCSVPath();
+	}
+
+	CSVFileManager& getFileReader()
+	{
+		return this->fileReader;
+	}
+
+
+	// Destructor:
+	~Branch() {
+		if (tree1) {
+			tree1->deleteTree();
+			delete tree1;
+		}
 	}
 
 };

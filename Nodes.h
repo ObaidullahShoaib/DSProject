@@ -24,7 +24,7 @@ struct TreeNode {
 	unsigned char shaHash[SHA256_DIGEST_LENGTH];
 
 	// Number of children by default is 2 because that will be the minimum number of children in our implementation
-	TreeNode() : numOfChildren(2) { 
+	TreeNode() : numOfChildren(2) {
 		count++;
 		nodeName = generateNodeName();
 	}
@@ -44,7 +44,7 @@ private:
 		oss << "Node_" << count << ".txt";
 		return oss.str();
 	}
-}; 
+};
 
 template <typename T>
 int TreeNode<T>::count = 0;  // Initialize static count to 0
@@ -60,7 +60,7 @@ struct AVLNode : public TreeNode<T> {
 
 	// Constructors:
 	AVLNode() : height(0), parent(nullptr) { this->nullAllDescendants(); }
-	AVLNode(T key, String data,int hashType) : height(0), TreeNode<T>(key, data,hashType), parent(nullptr) { this->nullAllDescendants(); }
+	AVLNode(T key, String data, int hashType) : height(0), TreeNode<T>(key, data, hashType), parent(nullptr) { this->nullAllDescendants(); }
 
 
 	// Sets both descendants to nullptr:

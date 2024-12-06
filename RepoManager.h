@@ -1,7 +1,7 @@
 #pragma once
 class Repository;
 #include "Repository.h"
-#include"TXTFileManager.h"
+#include"TxtFileManager.h"
 #include <filesystem>
 using namespace std;
 
@@ -10,15 +10,16 @@ namespace fs = std::filesystem;
 class RepoManager {
 	Repository* activeRepo;
 	Repository** allRepos;
-
+	
 	TxtFileManager repoMetadata;
 	FolderManager folderManager;
-
+	fs::path baseGitLitePath;
 	int hashType;
 	int repoCount;
 
 public:
-	RepoManager(fs::path GitLitePath) :folderManager(GitLitePath) {
+	RepoManager(fs::path GitLitePath):folderManager(GitLitePath) {
+		this->baseGitLitePath = GitLitePath;
 		activeRepo = nullptr;
 		allRepos = nullptr;
 		repoCount = 0;
@@ -32,15 +33,15 @@ public:
 		temp[repoCount] = new Repository(name, folderManager.get_current_path() / name);
 		delete[] allRepos;
 		allRepos = temp;
-		this->activeRepo = allRepos[repoCount++];
-		
-
+		this->activeRepo = allRepos[repoCount];
+		this->repoCount++;		
 	}
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
 		for (int i = 0; i < repoCount; i++) {
 			if (allRepos[i]->getName() == name) {
 				activeRepo = allRepos[i];
+				this->activeRepo->getCSVPath();
 				folderManager.open_folder(folderManager.get_current_path() / pathName);
 				return;
 			}
@@ -65,7 +66,7 @@ public:
 	}
 
 	/*
-		.
+	    .
 		.
 		----- SAVING AND LOADING REPOSITORY-----
 		.
@@ -94,13 +95,19 @@ public:
 		}
 		// write data to file
 		this->repoMetadata.outputFile << activeRepo->getName().c_str() << endl;
-		this->repoMetadata.outputFile << activeRepo->getFolderManager().get_current_path() << endl;
+		this->repoMetadata.outputFile << activeRepo->getFolderManager().get_current_path().string() << endl;
+		this->repoMetadata.outputFile << activeRepo->getCSVPath().string() << endl;	// storing csv path
+		this->repoMetadata.outputFile << activeRepo->getTreeType() << endl;
+		this->repoMetadata.outputFile << activeRepo->getColumnNo() << endl;
+		//this->repoMetadata.outputFile << activeRepo->getHashType() << endl;
 		this->repoMetadata.outputFile << activeRepo->getBranchCount() << endl;
 		for (int i = 0; i < activeRepo->getBranchCount(); i++)
 		{
 			this->repoMetadata.outputFile << activeRepo->getAllBranches()[i]->getBranchName().string() << endl;
 		}
 		this->repoMetadata.outputFile << activeRepo->getActiveBranch()->getBranchName().string() << endl;
+		this->repoMetadata.outputFile.close();
+
 
 		// copying repository to a new folder
 		fs::path newPath = temp->getName().c_str();
@@ -108,42 +115,101 @@ public:
 		folderManager.copy_folder(folderManager.get_current_path() / newPath, folderManager.get_current_path() / temp->getName().c_str(), true);
 	}
 
+	// delete repo
+	void deleteRepo(fs::path pathName)
+	{
+		String name = pathName.string().c_str();
+		for (int i = 0; i < repoCount; i++) 
+		{
+			if (allRepos[i]->getName() == name) 
+			{
+				
+				folderManager.delete_folder(allRepos[i]->getFolderManager().get_current_path());
+				delete allRepos[i];
+				for (int j = i; j < repoCount - 1; j++)
+				{
+					allRepos[j] = allRepos[j + 1];
+				}
+
+				repoCount--;
+				return;
+			}
+		}
+		
+		cout << "\nRepository not found" << endl;
+	}
+
 	// to load user's chosen repository from txt file:
 	void load(char* txtPathName)
 	{
-		char* temp = new char[my_strlen(txtPathName) + 1];
-
-		for (int i = 0; i < my_strlen(txtPathName) - 1 && txtPathName[i + 1] != '_'; i++)
+		char* repoName = new char[my_strlen(txtPathName) + 1];
+		
+		int i;
+		for (i = 0; i < my_strlen(txtPathName) - 1 && txtPathName[i] != '_'; i++)
 		{
-			temp[i] = txtPathName[i];
+			repoName[i] = txtPathName[i];
 		}
+		repoName[i] = '\0';
 
-		Repository* newRepo = new Repository(temp, folderManager.get_current_path());
+		// delete existing repository 
+		deleteRepo(repoName);
+ 		fs::path pathToCreate = folderManager.get_current_path();
+		fs::current_path(pathToCreate);
+		folderManager.create_folder(repoName);
 
-		// repoMetadata.LoadRepoFromTxt(*newRepo, newRepo->getFolderManager().get_current_path());
 
+		fs::path repoPath = repoName;
+		repoPath += "_data.txt";
+		
+		fs::path repoCopyFolderName = repoName;
+		repoCopyFolderName += "_copy";		
 
+		// extracting path of metadata file from the old state
+		pathToCreate = this->baseGitLitePath / repoCopyFolderName / repoPath;		
 
-
+		char* tempRepoName = new char[256];
+		char* tempRepoPath = new char[256];
+		
 		// load data from file
-		this->repoMetadata.inputFile = ifstream(newRepo->getFolderManager().get_current_path());
-		if (!this->repoMetadata.inputFile)
+		this->repoMetadata.inputFile = ifstream(pathToCreate);
+		this->repoMetadata.inputFile;
+		if (!this->repoMetadata.inputFile.is_open())
 		{
 			cout << "Error: Could not open the file for reading." << endl;
 			return;
 		}
 		char* line = new char[256];
+
 		// read data from file
 		this->repoMetadata.inputFile.getline(line, 256);
-		newRepo->setName(line);
+		my_strcpy(tempRepoName, line);
 
 		this->repoMetadata.inputFile.getline(line, 256);
-		newRepo->setFolderManager(new FolderManager(line));
+		my_strcpy(tempRepoPath, line);
+
+		this->repoMetadata.inputFile.getline(line, 256);
+		fs::path activeCSVPath = line;
+
+		this->repoMetadata.inputFile.getline(line, 256);
+		String treeType = line;
+
+		this->repoMetadata.inputFile.getline(line, 256);
+		int columnNo = atoi(line);
+
+		Repository* newRepo = new Repository(repoName, folderManager.get_current_path() / repoName, activeCSVPath, treeType, columnNo);
+		this->activeRepo = newRepo;
+
+		newRepo->setName(tempRepoName);
+		// newRepo->setFolderManager(new FolderManager(tempRepoPath));
 
 		this->repoMetadata.inputFile.getline(line, 256);
 		newRepo->setBranchCount(atoi(line));
+		
+		// wasting 1 line:
+		this->repoMetadata.inputFile.getline(line, 256);
 
-		for (int i = 0; i < newRepo->getBranchCount(); i++)
+		// copying all branches other than main (main auto-constructed in Repo Constructor)
+		for (int i = 1; i < newRepo->getBranchCount(); i++)
 		{
 			this->repoMetadata.inputFile.getline(line, 256);
 			newRepo->addBranch(line, i, true);
@@ -160,13 +226,24 @@ public:
 				newRepo->setActiveBranch(newRepo->getAllBranches()[i]);
 			}
 		}
+
+		// close input file:
+		this->repoMetadata.inputFile.close();
+
+		// copy input file to newRepo:
+		fs::path source = this->baseGitLitePath / repoCopyFolderName / txtPathName;
+		fs::path dest = newRepo->getFolderManager().get_current_path() / txtPathName;
+		newRepo->getActiveBranch()->getFileReader().copy_file(source, dest);
+
+		if (this->repoMetadata.inputFile.is_open())
+			this->repoMetadata.inputFile.close();
 	}
 
 
 	Repository* findRepo(String name) {
 		for (int i = 0; i < repoCount; i++) {
 			if (this->allRepos[i]->getName() == name)
-				return this->allRepos[i];
+				return this->allRepos[i];			
 		}
 		return nullptr;
 	}
@@ -196,17 +273,9 @@ public:
 		} while (choice != 1 && choice != 2);
 	}
 
-	~RepoManager() {
-		for (int i = 0; i < repoCount; i++) {
-			delete allRepos[i];
-		}
-		delete[] allRepos;
-	}
-
 	void commit() {
 		activeRepo->commit();
 	}
-
 	void saveMetaData() {
 		ofstream RepositoryMetaData = ofstream(folderManager.get_current_path() / "RepositoryMetaData.txt");
 		if (RepositoryMetaData.is_open())
@@ -216,7 +285,6 @@ public:
 			for (int i = 0; i < this->repoCount; i++) {
 				RepositoryMetaData << allRepos[i]->getName() << endl;
 			}
-
 			RepositoryMetaData.close();
 			for (int i = 0; i < this->repoCount; i++) {
 				allRepos[i]->save();
@@ -227,8 +295,14 @@ public:
 			cout << "Error: Could not open the file for writing." << endl;
 		}
 	}
-
 	void log() {
 		this->activeRepo->log();
+	}
+
+	~RepoManager() {
+		for (int i = 0; i < repoCount; i++) {
+			delete allRepos[i];
+		}
+		delete[] allRepos;
 	}
 };

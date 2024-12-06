@@ -7,10 +7,10 @@ class GitLite {
 	TxtFileManager GitLiteMetadata;
 
 public:
-	GitLite():foldermanager(fs::current_path()), manager(fs::current_path() / "GitLite") {
-		fs::path GitLitepath = fs::current_path();
+	GitLite() :foldermanager(fs::current_path()), manager(fs::current_path() / "GitLite") {
+		fs::path GitLitepath = fs::current_path() / "GitLite";
 		foldermanager.create_folder("GitLite");
-		//GitLiteMetadata.createFile(GitLitepath / "GitLite" / "GitLiteMetadata.txt");
+		this->run();	
 	}
 	void run() {
 		String input;
@@ -79,5 +79,5 @@ public:
 			}
 
 		}
-	 }
+	}
 };

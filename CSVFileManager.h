@@ -36,7 +36,7 @@ public:
         delete[] key_data;
     }
 
-    void readFileData() override
+    void readFileData(int& columnNo) override
     {
         // Reads row data
         char line[5000];
@@ -73,17 +73,25 @@ public:
             ++iterator;
         }
 
-        int choice = 0;
-        cout << "\nInput serial number for Key column: ";
-        cin >> choice;
-        while (choice <= 0 || choice > columnCount)
-        {
-            cout << "\nInvalid choice. Try again.";
-            cout << "\nInput serial number for column: ";
-            cin >> choice;
-        }
 
-        cout << "\nYour Key Column is: " << columns_data[choice - 1] << endl;
+
+        // INPUTTING KEY COLUMN:
+        if (columnNo == 0)
+        {
+            int choice = 0;
+            cout << "\nInput serial number for Key column: ";
+            cin >> choice;
+            columnNo = choice;
+            while (choice <= 0 || choice > columnCount)
+            {
+                cout << "\nInvalid choice. Try again.";
+                cout << "\nInput serial number for column: ";
+                cin >> choice;
+                columnNo = choice;
+            }
+        }
+        cout << "\nYour Key Column is: " << columns_data[columnNo - 1] << endl;
+
 
         while (inputFile.getline(line, 1000))
         {
@@ -119,7 +127,7 @@ public:
             int columnIndex = 1; // Column counter
             while (token != nullptr)
             {
-                if (columnIndex == choice) // Key column
+                if (columnIndex == columnNo) // Key column
                 {
                     key_data[key_index] = new char[my_strlen(token) + 1];
                     my_strcpy(key_data[key_index], token);

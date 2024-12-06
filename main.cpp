@@ -4,6 +4,5 @@
 int main()
 {
 	GitLite git;
-	git.run();
-	return 0;
+    return 0;
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "Branch.h"
-//#include "TXTFileManager.h"
+#include "TxtFileManager.h"
 #include <iostream>
 
 class Repository {
@@ -9,10 +9,22 @@ private:
 	Branch* activeBranch;     // Currently active branch
 	int branchCount;          // Number of branches
     Branch** allBranches;      // Dynamic array of branches
-    
+	fs::path csvPath;
 	FolderManager folderManager;
+	String treeType;
+	int columnNo;
 
 public:
+	// get ColumnNo:
+	int getColumnNo() const {
+		return this->columnNo;
+	}
+
+	// getTreeType:
+	String getTreeType() const {
+		return this->treeType;
+	}
+
 	// getrepo name
 	String getName() const {
 		return this->name;
@@ -56,14 +68,28 @@ public:
 	// set Folder Manager
 	void setFolderManager(FolderManager* folderManager) {
 		this->folderManager = *folderManager;
-	}		
+	}	
 
-    Repository(fs::path repoName, fs::path repoPath) : branchCount(1), folderManager(repoPath) {
+	void setCSVPath(fs::path csvPath)
+	{
+		this->csvPath = csvPath;
+	}
+
+	fs::path getCSVPath()
+	{
+		return this->csvPath;
+	}
+
+
+    Repository(fs::path repoName, fs::path repoPath,fs::path csvPath = "", String treeType = "", int columnNo = 0)
+		: branchCount(1), folderManager(repoPath), treeType(treeType), columnNo(columnNo)
+	{
 		this->name = repoName.string().c_str();
 		this->allBranches = new Branch * [branchCount];
-		this->allBranches[0] = new Branch("main", repoPath);
+		this->allBranches[0] = new Branch("main", this->treeType, this->columnNo, repoPath, csvPath); 
         this->activeBranch = this->allBranches[0];
 		this->name = name;
+		this->setCSVPath(this->allBranches[0]->getCSVPath());
     }
 
 	Branch* findBranch(fs::path branchName) {
@@ -118,20 +144,20 @@ public:
 			for (int i = 0; i < branchCount; i++) {
 				temp[i] = allBranches[i];
 			}
-			temp[branchCount] = new Branch(branchName, folderManager.get_current_path());			
+			temp[branchCount] = new Branch(branchName, this->treeType, this->columnNo, folderManager.get_current_path());
 			temp[branchCount]->CopyBranchDetails(branchName, *findBranch(sourceBranchName));
 			delete[] allBranches;
 			allBranches = temp;
-
+						
 			branchCount++;
 		}		
 		
 		else
 		{
 			cout << "\nBranch already exists." << endl;
-			folderManager.delete_folder(folderManager.get_current_path() / branchName);
+			folderManager.delete_folder(folderManager.get_current_path() / branchName);			
 		}
-		// folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
+		//folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
 	}
 
 	void addBranch(fs::path branchName, int index, bool branchCountSet = false)
@@ -141,10 +167,13 @@ public:
 			temp[i] = allBranches[i];
 		}
 
-		temp[index] = new Branch(branchName, folderManager.get_current_path());
+		temp[index] = new Branch(branchName, this->treeType, this->columnNo, folderManager.get_current_path());
 		delete[] allBranches;
 		allBranches = temp;
-		folderManager.create_folder(folderManager.get_current_path() / branchName);
+		fs::path source = folderManager.get_current_path();
+		source += "_copy";
+		source = source / branchName;
+		folderManager.copy_folder(folderManager.get_current_path() / branchName, source);
 		
 		if (!branchCountSet)
 			branchCount++;
@@ -165,15 +194,10 @@ public:
 		cout << "Branch not found" << endl;
 	}
 
-    // Destructor
-    ~Repository() {
-        delete[] allBranches;
-    }
 
 	void commit() {
 		activeBranch->commit();
 	}
-
 	void save() {
 		ofstream metaData = ofstream(folderManager.get_current_path() / "MetaData.txt");
 		if (metaData.is_open())
@@ -196,11 +220,15 @@ public:
 			cout << "Error: Could not open the file for writing." << endl;
 		}
 	}
-
 	void log() {
 		activeBranch->showCommits();
 	}
 
 
+
+    // Destructor
+    ~Repository() {
+        delete[] allBranches;
+    }
 
 };
