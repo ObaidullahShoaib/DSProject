@@ -52,6 +52,17 @@ public:
 				cout << "Checkout Log:" << endl;
 				manager.log();
 			}
+			else if (input == "delete")
+			{
+				char* repoName = new char[100];
+				cout << "Enter Repository Name: ";
+				cin >> repoName;
+				manager.deleteRepo(repoName);
+			}
+			else if (input == "cls")
+			{
+				system("cls");
+			}
 			else if (input == "exit") {
 				cout << "Exiting the program!" << endl;
 				cout << "Do you want to save the changes? (Y/N): ";
