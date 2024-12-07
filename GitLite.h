@@ -193,27 +193,6 @@ public:
 		delete[] gitlite;
 	}
 
-	/*void commands()
-	{
-		cout << ",___________________________________________________________________________," << endl;
-		cout << "||		COMMANDS\t\t||					INSTRUCTIONS					||" << endl;
-		cout << "||________________________________________||__________________________________________________||" << endl;
-		cout << "||		   init \t\t||			initialize a repository					||" << endl;	
-		cout << "||     \t\tbranch\t\t||			create a new branch						||" << endl;
-		cout << "||      \t\tcheckout\t\t||			switch between branches					||" << endl;
-		cout << "||		   save\t\t||			save a repository						||" << endl;
-		cout << "||		   load	\t\t||			loads a repository						||" << endl;
-		cout << "||		   log	\t\t||			displays commit log history				||" << endl;
-		cout << "||		  commit\t\t||			to edit a branch (Nodes)				||" << endl;
-		cout << "||		 branches\t\t||			displays all branches					||" << endl;
-		cout << "||	   current-branch\t\t||			displays current branch					||" << endl;
-		cout << "||	   delete-branch\t\t||			deletes a branch						||" << endl;
-		cout << "||		  delete\t\t||			deletes a repository					||" << endl;
-		cout << "||		   cls	\t\t||			clears console screen					||" << endl;
-		cout << "||		   exit	\t\t||			exit program							||" << endl;
-		cout << "||_____________________||__________________________________________________||" << endl;
-
-	}*/
 
 	void commands() {
 		using std::cout;
@@ -239,6 +218,7 @@ public:
 		cout << "| " << setw(width) << "delete-branch" << " | " << setw(width) << "deletes a branch" << " |" << endl;
 		cout << "| " << setw(width) << "delete" << " | " << setw(width) << "deletes a repository" << " |" << endl;
 		cout << "| " << setw(width) << "cls" << " | " << setw(width) << "clears console screen" << " |" << endl;
+		cout << "| " << setw(width) << "commands" << " | " << setw(width) << "displays all commands" << " |" << endl;
 		cout << "| " << setw(width) << "exit" << " | " << setw(width) << "exit program" << " |" << endl;
 		cout << setfill('_') << "|" << setw(width + 3) << "_|" << setw(width + 3) << "|" << endl;
 
