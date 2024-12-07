@@ -26,11 +26,7 @@ public:
 	}
 	Repository* createRepo(fs::path name, fs::path activeCSVPath = "", String treeType = "", int columnNo = 0) 
 	{
-		if (exists(folderManager.get_current_path() / name))
-		{
-			cout << "Repository already exists" << endl;
-			return nullptr;
-		}
+
 		Repository** temp = new Repository * [repoCount + 1];
 		for (int i = 0; i < repoCount; i++) {
 			temp[i] = allRepos[i];
