@@ -28,6 +28,16 @@ public:
         closeFile();
     }
 
+    // assignment operator
+	TxtFileManager& operator=(const TxtFileManager& txt)
+	{
+		if (this != &txt)
+		{
+			FileManager::operator=(txt);
+		}
+		return *this;
+	}
+
     // append data to the file
     void writeFileData() override
     {

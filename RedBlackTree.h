@@ -223,6 +223,7 @@ public:
 
     RedBlackTree(const RedBlackTree<T>& other) {
         root = copyTree(other.root);
+        this->count = other.count;
     }
 
     //assignment operator
@@ -230,6 +231,7 @@ public:
         if (this != &other) {
             deleteTree();
             root = copyTree(other.root);
+            this->count = other.count;
         }
         return *this;
     }

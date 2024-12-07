@@ -31,6 +31,35 @@ public:
 		rowCount = 0;
     }
 
+    // assignment operator
+    FileManager& operator=(const FileManager& file) {
+		if (this != &file)
+		{
+			delete[] file_name;
+            file_name = NULL;
+			file_name = new char[my_strlen(file.file_name) + 1];
+			my_strcpy(file_name, file.file_name);
+			rowCount = file.rowCount;
+		}
+		return *this;
+	}
+
+	// copy constructor
+
+
+	// get file name
+	char* getFileName () const
+	{
+		return this->file_name;
+	}
+
+    // set file name
+	void setFileName(fs::path fileName)
+	{
+		this->file_name = new char[fileName.string().length() + 1];
+		my_strcpy(this->file_name, fileName.string().c_str());
+	}
+
     void openFile(fs::path CSVPath = "")
     {
         if (CSVPath == "")

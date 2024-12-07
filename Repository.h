@@ -6,13 +6,17 @@
 class Repository {
 private:
 	String name;
+
 	Branch* activeBranch;     // Currently active branch
 	int branchCount;          // Number of branches
     Branch** allBranches;      // Dynamic array of branches
+	
 	fs::path csvPath;
 	FolderManager folderManager;
+	
 	String treeType;
 	int columnNo;
+	int hashType;
 
 public:
 	// get ColumnNo:
@@ -81,12 +85,15 @@ public:
 	}
 
 
-    Repository(fs::path repoName, fs::path repoPath,fs::path csvPath = "", String treeType = "", int columnNo = 0)
+    Repository(fs::path repoName, fs::path CSVFileName, fs::path repoPath,fs::path csvPath = "", String treeType = "", int columnNo = 0)
 		: branchCount(1), folderManager(repoPath), treeType(treeType), columnNo(columnNo)
 	{
 		this->name = repoName.string().c_str();
+
+		this->inputHashType();
+
 		this->allBranches = new Branch * [branchCount];
-		this->allBranches[0] = new Branch("main", this->treeType, this->columnNo, repoPath, csvPath); 
+		this->allBranches[0] = new Branch("main", CSVFileName, this->hashType, this->treeType, this->columnNo, repoPath, csvPath); 
         this->activeBranch = this->allBranches[0];
 		this->name = name;
 		this->setCSVPath(this->allBranches[0]->getCSVPath());
@@ -101,7 +108,7 @@ public:
 		return nullptr;
 	}
 
-	void createBranch(fs::path branchName) {
+	void createBranch(fs::path branchName, fs::path CSVFileName) {
 		// Declarations:
 		bool alreadyExists = this->findBranch(branchName) != nullptr;
 		int expiryCount = 0;
@@ -144,7 +151,7 @@ public:
 			for (int i = 0; i < branchCount; i++) {
 				temp[i] = allBranches[i];
 			}
-			temp[branchCount] = new Branch(branchName, this->treeType, this->columnNo, folderManager.get_current_path());
+			temp[branchCount] = new Branch(branchName,  CSVFileName, this->hashType, this->treeType, this->columnNo, folderManager.get_current_path());
 			temp[branchCount]->CopyBranchDetails(branchName, *findBranch(sourceBranchName));
 			delete[] allBranches;
 			allBranches = temp;
@@ -160,14 +167,14 @@ public:
 		//folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
 	}
 
-	void addBranch(fs::path branchName, int index, bool branchCountSet = false)
+	void addBranch(fs::path branchName, fs::path CSVFileName, int index, bool branchCountSet = false)
 	{
 		Branch** temp = !branchCountSet ? new Branch * [branchCount + 1]: new Branch *[index + 1];
 		for (int i = 0; i < index; i++) {
 			temp[i] = allBranches[i];
 		}
 
-		temp[index] = new Branch(branchName, this->treeType, this->columnNo, folderManager.get_current_path());
+		temp[index] = new Branch(branchName, CSVFileName, this->hashType, this->treeType, this->columnNo, folderManager.get_current_path());
 		delete[] allBranches;
 		allBranches = temp;
 		fs::path source = folderManager.get_current_path();
@@ -220,6 +227,45 @@ public:
 			cout << "Error: Could not open the file for writing." << endl;
 		}
 	}
+
+
+	/*
+*
+*
+ --------    INPUT HASH TYPE	--------
+*
+*
+*/
+	bool inputHashType() {
+		int choice;
+		int expiryCount = 0;
+		bool success = true;
+
+		do {
+			if (expiryCount == 3)
+			{
+				cout << "Defaulting to SHA256 Hash." << endl;
+				choice = 2;
+				success = false;
+			}
+			else
+			{
+				cout << "Which Hashing method do you want to use?" << endl << "1. Instructor Hash" << endl << "2. SHA256 Hash" << endl << "Choice: ";
+				cin >> choice;
+			}
+
+			if (choice == 1 || choice == 2)
+				this->hashType = choice;
+			else
+				cout << "Invalid Choice." << endl;
+
+			expiryCount++;
+		} while (choice != 1 && choice != 2);
+
+		return success;
+	}
+
+
 	void log() {
 		activeBranch->showCommits();
 	}

@@ -10,14 +10,61 @@ public:
     char** row_data;       // Array of char* for rows
     char** key_data;      // Array of char* for keys
     int columnCount = 0;
-    char** columns_data;
+	char** columns_data;    // Array to store column headings
+	int keyColumn = 0;
     void closeFile()
     {
 		if (inputFile.is_open())
             inputFile.close();
     }
 
-    CSVFileManager() : row_data(nullptr), key_data(nullptr), columns_data(nullptr) {}
+    CSVFileManager() : row_data(nullptr), key_data(nullptr), columns_data(nullptr){}
+
+    //assignment operator
+	CSVFileManager& operator=(const CSVFileManager& csv)
+	{
+		if (this != &csv)
+		{
+			FileManager::operator=(csv);
+			columnCount = csv.columnCount;
+			keyColumn = csv.keyColumn;
+			if (row_data != nullptr)
+			{
+				for (int i = 0; i < rowCount; ++i)
+				{
+					delete[] row_data[i];
+					delete[] key_data[i];
+				}
+				delete[] row_data;
+				delete[] key_data;
+			}
+			if (columns_data != nullptr)
+			{
+				for (int i = 0; i < columnCount; ++i)
+				{
+					delete[] columns_data[i];
+				}
+				delete[] columns_data;
+			}
+			row_data = new char* [rowCount];
+			key_data = new char* [rowCount];
+			columns_data = new char* [columnCount];
+			for (int i = 0; i < rowCount; ++i)
+			{
+				row_data[i] = new char[my_strlen(csv.row_data[i]) + 1];
+				my_strcpy(row_data[i], csv.row_data[i]);
+				key_data[i] = new char[my_strlen(csv.key_data[i]) + 1];
+				my_strcpy(key_data[i], csv.key_data[i]);
+			}
+			for (int i = 0; i < columnCount; ++i)
+			{
+				columns_data[i] = new char[my_strlen(csv.columns_data[i]) + 1];
+				my_strcpy(columns_data[i], csv.columns_data[i]);
+			}
+		}
+		return *this;
+	}
+
 
     ~CSVFileManager() {
 		closeFile();
@@ -90,6 +137,7 @@ public:
                 columnNo = choice;
             }
         }
+		this->keyColumn = columnNo;
         cout << "\nYour Key Column is: " << columns_data[columnNo - 1] << endl;
 
 
@@ -203,5 +251,34 @@ public:
             outputFile.close();
         }
     }
+
+    void appendToFile(fs ::path pathOfFile,String str) {
+		outputFile.open(pathOfFile, ios::app);
+		if (!outputFile)
+		{
+			cout << "Error opening file: " << file_name << endl;
+		}
+		else
+		{
+			outputFile << str << endl;
+			outputFile.close();
+		}
+    }
+
+	String extractKey(String line)
+	{   
+		char* token = my_strtok(stringToChar(line), ",");
+		int columnIndex = 1; // Column counter
+		while (token != nullptr)
+		{
+			if (columnIndex == this->keyColumn) // Key column
+			{
+				return token;
+			}
+			token = my_strtok(nullptr, ",");
+			columnIndex++;
+		}
+		return nullptr;
+	}   
 
 };

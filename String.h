@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
+#include <filesystem>
 using namespace std;
+namespace fs = std::filesystem;
+
 class String {
 private:
     char* str;
@@ -298,6 +301,14 @@ char* my_strtok(char* str, const char* delim) {
 	return ret;
 }
 
+// String to char*
+char* stringToChar(const String& str) {
+	char* cstr = new char[str.length() + 1];
+	strcpy(cstr, str.c_str());
+	return cstr;
+}
+ 
+
 void my_strcat(char* destination, const char* source) {
     while (*destination) {
         destination++;
@@ -338,4 +349,34 @@ string intToString(int num) {
 	}
 
 	return result;
+}
+
+// Function to extract the .csv filename
+String extractCSVFileName(fs::path fp) {
+	String filePath = fp.string().c_str();
+    // Remove trailing slashes
+    String normalizedPath = filePath;
+    while (!normalizedPath.empty() && (normalizedPath[normalizedPath.length() - 1] == '/' || normalizedPath[normalizedPath.length() - 1] == '\\')) {
+        normalizedPath = normalizedPath.substr(0, normalizedPath.length() - 1);
+    }
+
+    // Find the last slash to locate the file name
+    int lastSlashIndex = -1;
+    for (int i = 0; i < normalizedPath.length(); i++) {
+        if (normalizedPath[i] == '/' || normalizedPath[i] == '\\') {
+            lastSlashIndex = i;
+        }
+    }
+
+    // Extract the filename
+    String fileName = normalizedPath.substr(lastSlashIndex + 1, normalizedPath.length() - lastSlashIndex - 1);
+
+    // Check if the file name ends with ".csv"
+    if (fileName.length() > 4 && fileName.substr(fileName.length() - 4, 4) == ".csv") {
+        return fileName; // Valid .csv filename
+    }
+
+    // Return an empty string if it's not a .csv file
+    String emptyStr = "";
+    return emptyStr;
 }

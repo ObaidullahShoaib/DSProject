@@ -19,7 +19,7 @@ class Branch {
 	TxtFileManager commitLog;
 	int commitCount = 0;
 	Tree<String>* tree1;
-	
+
 	fs::path branchName;
 	fs::path csvPath;
 
@@ -29,15 +29,15 @@ class Branch {
 
 
 	/*
-	* 
-	* 
+	*
+	*
 	 --------    Function Name: initializeTree    --------
 	*
 	*
 	*/
 
-	void initializeTree(String& treeType, int rowCount)
-	{	
+	void initializeTree(int hashType, String& treeType, int rowCount)
+	{
 		if (treeType == "")
 		{
 			int choice;
@@ -110,38 +110,39 @@ public:
 	*
 	*/
 
-	Branch(fs::path branchName, String& treeType,int& columnNo, fs::path repoPath, fs::path csvPath = "")
-		: branchName(branchName), tree1(nullptr), folderManager(repoPath), treeType(treeType)
+	Branch(fs::path branchName, fs::path CSVFileName, int hashType, String& treeType, int& columnNo, fs::path repoPath, fs::path csvPath = "")
+		: branchName(branchName), tree1(nullptr), folderManager(repoPath), treeType(treeType), hashType(hashType)
 	{
 		folderManager.create_folder(this->branchName);
 		folderManager.create_folder(folderManager.get_current_path() / this->branchName / "Nodes");
 		commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
-		
+
+		this->fileReader.setFileName(CSVFileName);
 		this->fileReader.setCSVPath(csvPath);
 
 		if (branchName == "main")
 		{
-			init(treeType, columnNo, csvPath);
+			init(hashType, treeType, columnNo, csvPath);
 			fileReader.copy_file(fileReader.getCSVPath(), repoPath / this->branchName);
-			
-		}		
+
+		}
 	}
 
 	/*
-	* 
-	* 
+	*
+	*
 	 --------    Function Name: init    --------
 	*
 	*
 	*/
-	void init(String& treeType, int& columnNo, fs::path csvPath = "") {
+	void init(int hashType, String& treeType, int& columnNo, fs::path csvPath = "") {
 		fileReader.openFile(csvPath);
 		this->setCSVPath();
 		fileReader.readFileData(columnNo);
-		
+
 		int rowCount = fileReader.getRowCount();
-		
-		initializeTree(treeType, rowCount);
+
+		initializeTree(hashType, treeType, rowCount);
 		createNodeFile(tree1->getRoot());
 	}
 
@@ -163,6 +164,7 @@ public:
 			cout << "File created successfully: " << fileName << endl;
 		}
 		// write data to file
+		outputFile << root->id << endl;
 		outputFile << root->key << endl;
 		outputFile << root->data << endl;
 		outputFile << root->numOfChildren << endl;
@@ -184,6 +186,64 @@ public:
 	}
 
 	void commit() {
+		commitMsg();
+		int choice;
+		commitMenu(choice);
+		while (choice != 4) {
+			switch (choice) {
+			case 1:
+				addRecord();
+				break;
+			case 2:
+				deleteRecord();
+				break;
+			case 3:
+				editRecord();
+				break;
+			default:
+				cout << "Invalid choice. Please enter a valid option.\n";
+				break;
+			}
+			commitMenu(choice);
+		}
+	}
+
+	// Function to add a record to the tree and update csv file
+	// extract key from data based on column number added previously
+	void addRecord() {
+		String key, data, concatenatedData = "";
+		for (int i = 0; i < fileReader.columnCount; i++) {
+			cout << "Enter " << fileReader.columns_data[i] << ": ";
+			cin >> data;
+
+			// Add to concatenatedData with a comma (except for the first column)
+			if (i > 0) {
+				concatenatedData += ",";
+			}
+			concatenatedData += data;
+		}
+
+		key = fileReader.extractKey(concatenatedData); // Use concatenated data to extract the key
+		tree1->insert(key, concatenatedData, hashType); // Insert record into the tree
+		createNodeFile(tree1->getRoot()); // Create a node file for the new record
+
+		fs::path branchCSVPath = folderManager.get_current_path();
+		branchCSVPath += "\\";
+		branchCSVPath += branchName;
+		branchCSVPath += "\\";
+		branchCSVPath += fileReader.getFileName();
+
+		fileReader.appendToFile(branchCSVPath,concatenatedData); // Append concatenated data to the file
+	}
+
+	void deleteRecord() {
+
+	}
+	void editRecord() {
+
+	}
+
+	void commitMsg() {
 		commitCount++;
 		string index = intToString(commitCount);
 		string commitNo = "Commit# " + index + ":";
@@ -231,10 +291,8 @@ public:
 	}
 
 
-	void commitMenu(int& choice) 
-	{
-		while (choice != 4) 
-		{
+	void commitMenu(int& choice) {
+		do {
 			cout << "\nMENU: ";
 			cout << "\n1. Add a Record";
 			cout << "\n2. Delete a Record";
@@ -242,15 +300,18 @@ public:
 			cout << "\n4. Exit Commit Menu";
 			cout << "\nEnter choice: ";
 			cin >> choice;
-		}
-		return;
 
+			if (choice < 1 || choice > 4) {
+				cout << "Invalid choice. Please enter a number between 1 and 4.\n";
+			}
+		} while (choice < 1 || choice > 4); // Validate the choice is within range
 	}
 
 
+
 	/*
-	* 
-	* 
+	*
+	*
 	 --------    Function Name: Copy Branch Details    --------
 	*
 	*
@@ -258,11 +319,14 @@ public:
 
 	void CopyBranchDetails(fs::path newName, Branch& source) {
 		this->branchName = newName;
-		
+
 		//this->folderManager.create_folder(folderManager.get_current_path() / branchName / "Nodes");
+		this->folderManager = source.folderManager;
 		this->folderManager.copy_folder(folderManager.get_current_path() / branchName / "Nodes", folderManager.get_current_path() / source.branchName / "Nodes");
-		
+
 		//this->commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
+		this->fileReader = source.fileReader;
+		this->fileReader.setCSVPath(folderManager.get_current_path() / newName / source.getFileReader().getFileName());
 		fileReader.copy_file(source.getCSVPath(), folderManager.get_current_path() / this->branchName);
 		this->treeType = source.treeType;
 		this->hashType = source.hashType;
@@ -271,8 +335,8 @@ public:
 
 
 	/*
-	* 
-	* 
+	*
+	*
 	 --------    Getters, Setters:    --------
 	*
 	*
@@ -286,7 +350,7 @@ public:
 		return this->csvPath;
 	}
 
-	void setCSVPath() 
+	void setCSVPath()
 	{
 		this->csvPath = this->fileReader.getCSVPath();
 	}

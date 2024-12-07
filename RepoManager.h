@@ -14,7 +14,6 @@ class RepoManager {
 	TxtFileManager repoMetadata;
 	FolderManager folderManager;
 	fs::path baseGitLitePath;
-	int hashType;
 	int repoCount;
 
 public:
@@ -24,7 +23,7 @@ public:
 		allRepos = nullptr;
 		repoCount = 0;
 	}
-	Repository* createRepo(fs::path name, fs::path activeCSVPath = "", String treeType = "", int columnNo = 0) 
+	Repository* createRepo(fs::path name, fs::path CSVFileName, fs::path activeCSVPath = "", String treeType = "", int columnNo = 0) 
 	{
 
 		Repository** temp = new Repository * [repoCount + 1];
@@ -32,11 +31,11 @@ public:
 			temp[i] = allRepos[i];
 		}
 		folderManager.create_folder(name);
-		temp[repoCount] = new Repository(name, folderManager.get_current_path() / name, activeCSVPath, treeType, columnNo);
+		temp[repoCount] = new Repository(name, CSVFileName, folderManager.get_current_path() / name, activeCSVPath, treeType, columnNo);
 		delete[] allRepos;
 		allRepos = temp;
 		this->activeRepo = allRepos[repoCount];
-		this->repoCount++;	
+		this->repoCount++;
 		return allRepos[repoCount - 1];
 	}
 
@@ -61,9 +60,9 @@ public:
 		activeRepo->checkout(commitID);
 	}
 
-	void createBranch(fs::path branchName) {
+	void createBranch(fs::path branchName, fs::path CSVFileName) {
 		if (activeRepo != nullptr)
-			activeRepo->createBranch(branchName);
+			activeRepo->createBranch(branchName, CSVFileName);
 		else {
 			cout << "No active repository" << endl;
 		}
@@ -211,7 +210,9 @@ public:
 		this->repoMetadata.inputFile.getline(line, 256);
 		int columnNo = atoi(line);
 
-		Repository* newRepo = this->createRepo(repoName, activeCSVPath, treeType, columnNo);
+		String CSVFileName = extractCSVFileName(activeCSVPath);
+		fs::path CSVFileNamePathed = CSVFileName.c_str();
+		Repository* newRepo = this->createRepo(repoName, CSVFileNamePathed, activeCSVPath, treeType, columnNo);
 		this->activeRepo = newRepo;
 
 		newRepo->setName(tempRepoName);
@@ -227,7 +228,7 @@ public:
 		for (int i = 1; i < newRepo->getBranchCount(); i++)
 		{
 			this->repoMetadata.inputFile.getline(line, 256);
-			newRepo->addBranch(line, i, true);
+			newRepo->addBranch(line, CSVFileNamePathed, i, true);
 		}
 
 		this->repoMetadata.inputFile.getline(line, 256);
@@ -263,30 +264,6 @@ public:
 		return nullptr;
 	}
 
-	void inputHashType() {
-		int choice;
-		int expiryCount = 0;
-
-		do {
-			if (expiryCount == 3)
-			{
-				cout << "Defaulting to SHA256 Hash." << endl;
-				choice = 2;
-			}
-			else
-			{
-				cout << "Which Hashing method do you want to use?" << endl << "1. Instructor Hash" << endl << "2. SHA256 Hash" << endl << "Choice: ";
-				cin >> choice;
-			}
-
-			if (choice == 1 || choice == 2)
-				this->hashType = choice;
-			else
-				cout << "Invalid Choice." << endl;
-
-			expiryCount++;
-		} while (choice != 1 && choice != 2);
-	}
 
 	void commit() {
 		activeRepo->commit();

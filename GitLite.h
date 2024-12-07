@@ -10,27 +10,28 @@ public:
 	GitLite() :foldermanager(fs::current_path()), manager(fs::current_path() / "GitLite") {
 		fs::path GitLitepath = fs::current_path() / "GitLite";
 		foldermanager.create_folder("GitLite");
-		this->run();	
+		this->run();
 	}
 	void run() {
 		String input;
 		while (true) {
 			cout << "-----> "; // Prompt
 			cin >> input;
+			fs::path CSVFileName;
 
-			if (input == "init") 
+			if (input == "init")
 			{
-				fs::path csvPath = this->openFile();
+				CSVFileName = this->openFile();
 				cout << "Enter Repository Name: ";
 				string name;
 				cin >> name;
 				fs::path repoName = name;
-				manager.createRepo(name, foldermanager.get_current_path() / csvPath); // Initialize repository
+				manager.createRepo(name, CSVFileName, foldermanager.get_current_path() / CSVFileName); // Initialize repository
 			}
 			else if (input == "branch") {
 				fs::path branchName;
 				cin >> branchName;
-				manager.createBranch(branchName);
+				manager.createBranch(branchName, CSVFileName);
 			}
 			else if (input == "checkout") {
 				fs::path branchName;
@@ -111,11 +112,11 @@ public:
 
 				if (c == 1)
 					cin.ignore();
-				
-				
+
+
 				cin.getline(file_name, 1000);
 				c++;
-				
+
 				inputFile.open(CSVPath != "" ? CSVPath : file_name);
 
 			} while (!inputFile.is_open());
@@ -132,14 +133,13 @@ public:
 		if (inputFile.is_open())
 			inputFile.close();
 		inputFile.open(CSVPath != "" ? CSVPath : file_name);
-		
+
 		if (!inputFile.is_open())
 			cout << "Error: Could not open the file. Please try again." << endl;
-		else		
+		else
 			cout << "File opened successfully!" << endl;
 
 		return CSVPath;
 	}
-		
-};
 
+};

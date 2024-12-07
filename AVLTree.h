@@ -7,23 +7,29 @@ class AVLTree :public Tree<T> {
 	int count;
 public:
 	AVLTree() : root(nullptr) {}
+
 	AVLTree(const AVLTree& other) {
 		root = copyTree(other.root);
+		this->count = other.count;
 	}
 	AVLTree<T>& operator=(const AVLTree<T>& other) {
 		if (this != &other) {
 			deleteTree();
 			root = copyTree(other.root);
+			this->count = other.count;
 		}
 		return *this;
 	}
+
 	~AVLTree() {
 		deleteTree();
 	}
+	
 	void insert(T key, String data, int hashType) override {
 		count++;
 		root = insertHelper(root, key, data, hashType, this->count);
 	}
+	
 	void remove(T key) override {
 		root = removeHelper(root, key);
 	}
@@ -125,7 +131,7 @@ private:
 	}
 
 
-	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType, int count) {
+	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType, int count, int hash = -1) {
 		if (node == nullptr) {
 			return new AVLNode<T>(key, data, hashType, count);
 		}
