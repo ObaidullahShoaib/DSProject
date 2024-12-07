@@ -213,6 +213,7 @@ public:
 		cout << "| " << setw(width) << "log" << " | " << setw(width) << "displays commit log history" << " |" << endl;
 		cout << "| " << setw(width) << "commit" << " | " << setw(width) << "to edit a branch (Nodes)" << " |" << endl;
 		cout << "| " << setw(width) << "merge" << " | " << setw(width) << "to merge branches" << " |" << endl;
+		cout << "| " << setw(width) << "visualize-tree" << " | " << setw(width) << "to visualize tree for branch" << " |" << endl;
 		cout << "| " << setw(width) << "branches" << " | " << setw(width) << "displays all branches" << " |" << endl;
 		cout << "| " << setw(width) << "current-branch" << " | " << setw(width) << "displays current branch" << " |" << endl;
 		cout << "| " << setw(width) << "delete-branch" << " | " << setw(width) << "deletes a branch" << " |" << endl;
