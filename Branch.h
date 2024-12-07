@@ -110,7 +110,7 @@ public:
 	*
 	*/
 
-	Branch(fs::path branchName, String& treeType,int& columnNo, fs::path repoPath, fs::path csvPath = "", bool shouldInputTreeType = true)
+	Branch(fs::path branchName, String& treeType,int& columnNo, fs::path repoPath, fs::path csvPath = "")
 		: branchName(branchName), tree1(nullptr), folderManager(repoPath), treeType(treeType)
 	{
 		folderManager.create_folder(this->branchName);
@@ -121,7 +121,7 @@ public:
 
 		if (branchName == "main")
 		{
-			init(treeType, columnNo, csvPath, shouldInputTreeType);
+			init(treeType, columnNo, csvPath);
 			fileReader.copy_file(fileReader.getCSVPath(), repoPath / this->branchName);
 			
 		}		
@@ -134,7 +134,7 @@ public:
 	*
 	*
 	*/
-	void init(String& treeType, int& columnNo, fs::path csvPath = "", bool openExisting = false) {
+	void init(String& treeType, int& columnNo, fs::path csvPath = "") {
 		fileReader.openFile(csvPath);
 		this->setCSVPath();
 		fileReader.readFileData(columnNo);
