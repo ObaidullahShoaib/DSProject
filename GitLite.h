@@ -18,14 +18,16 @@ public:
 			cout << "-----> "; // Prompt
 			cin >> input;
 
-			if (input == "init") {
+			if (input == "init") 
+			{
 				cout << "Enter Repository Name: ";
 				string name;
 				cin >> name;
 				fs::path repoName = name;
 				manager.createRepo(name); // Initialize repository
 			}
-			else if (input == "branch") {
+			else if (input == "branch") 
+			{
 				fs::path branchName;
 				cin >> branchName;
 				manager.createBranch(branchName);
