@@ -68,6 +68,33 @@ public:
 		}
 	}
 
+	void showBranches()
+	{
+		if (activeRepo != nullptr)
+			activeRepo->showBranches();
+		else {
+			cout << "No active repository" << endl;
+		}
+	}
+
+	void deleteBranch(fs::path branchName) 
+	{
+		if (activeRepo != nullptr)
+			activeRepo->deleteBranch(branchName);
+		else {
+			cout << "No active repository" << endl;
+		}
+	}
+
+	void getCurrentBranch()
+	{
+		if (activeRepo != nullptr)
+			activeRepo->getCurrentBranch();
+		else {
+			cout << "No active repository" << endl;
+		}
+	}
+
 	/*
 	    .
 		.

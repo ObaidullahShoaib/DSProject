@@ -1,5 +1,6 @@
 #pragma once
 #include"RepoManager.h"
+#include<iomanip>
 
 class GitLite {
 	RepoManager manager;
@@ -13,6 +14,11 @@ public:
 		this->run();
 	}
 	void run() {
+		this->showGitlite();
+		this->commands();
+		cout << "\nPress ENTER to continue....";
+		cin.ignore();
+
 		String input;
 		while (true) {
 			cout << "-----> "; // Prompt
@@ -55,12 +61,32 @@ public:
 				cout << "Checkout Log:" << endl;
 				manager.log();
 			}
+			else if (input == "branches")
+			{
+				manager.showBranches();
+			}
+			else if (input == "delete-branch")
+			{
+				cout << "Enter Branch Name: ";
+				String branchName;
+				cin >> branchName;
+				cout << endl;
+				manager.deleteBranch(branchName.c_str());
+			}
+			else if (input == "current-branch")
+			{
+				manager.getCurrentBranch();
+			}
 			else if (input == "delete")
 			{
 				char* repoName = new char[100];
 				cout << "Enter Repository Name: ";
 				cin >> repoName;
 				manager.deleteRepo(repoName);
+			}
+			else if (input == "commands")
+			{
+				this->commands();
 			}
 			else if (input == "cls")
 			{
@@ -140,6 +166,83 @@ public:
 			cout << "File opened successfully!" << endl;
 
 		return CSVPath;
+	}
+
+	void showGitlite()
+	{
+		String* gitlite = new String[11];
+		cout << endl << endl;
+
+		int i = 0;
+		gitlite[i++] = " .----------------. .----------------. .----------------.   .----------------. .----------------. .----------------. .----------------. ";
+		gitlite[i++] = "| .--------------. | .--------------. | .--------------. | | .--------------. | .--------------. | .--------------. | .--------------. |";
+		gitlite[i++] = "| |    ______    | | |     _____    | | |  _________   | | | |   _____      | | |     _____    | | |  _________   | | |  _________   | |";
+		gitlite[i++] = "| |  .' ___  |   | | |    |_   _|   | | | |  _   _  |  | | | |  |_   _|     | | |    |_   _|   | | | |  _   _  |  | | | |_   ___  |  | |";
+		gitlite[i++] = "| | / .'   \\_|   | | |      | |     | | | |_/ | | \\_|  | | | |    | |       | | |      | |     | | | |_/ | | \\_|  | | |   | |_  \\_|  | |";
+		gitlite[i++] = "| | | |    ____  | | |      | |     | | |     | |      | | | |    | |   _   | | |      | |     | | |     | |      | | |   |  _ | _   | |";
+		gitlite[i++] = "| | \\ `.___]  _| | | |     _| |_    | | |    _| |_     | | | |   _| |__/ |  | | |     _| |_    | | |    _| |_     | | |  _| |___/ |  | |";
+		gitlite[i++] = "| |  `._____.'   | | |    |_____|   | | |   |_____|    | | | |  |________|  | | |    |_____|   | | |   |_____|    | | | |_________|  | |";
+		gitlite[i++] = "| |              | | |              | | |              | | | |              | | |              | | |              | | |              | |";
+		gitlite[i++] = "| '--------------' | '--------------' | '--------------' | | '--------------' | '--------------' | '--------------' | '--------------' |";
+		gitlite[i++] = "'----------------' '----------------' '----------------'   '----------------' '----------------' '----------------' '----------------'";
+
+		for (int i = 0; i < 11; i++)
+			cout << gitlite[i] << endl;
+
+		cout << endl << endl << endl;
+		delete[] gitlite;
+	}
+
+	/*void commands()
+	{
+		cout << ",___________________________________________________________________________," << endl;
+		cout << "||		COMMANDS\t\t||					INSTRUCTIONS					||" << endl;
+		cout << "||________________________________________||__________________________________________________||" << endl;
+		cout << "||		   init \t\t||			initialize a repository					||" << endl;	
+		cout << "||     \t\tbranch\t\t||			create a new branch						||" << endl;
+		cout << "||      \t\tcheckout\t\t||			switch between branches					||" << endl;
+		cout << "||		   save\t\t||			save a repository						||" << endl;
+		cout << "||		   load	\t\t||			loads a repository						||" << endl;
+		cout << "||		   log	\t\t||			displays commit log history				||" << endl;
+		cout << "||		  commit\t\t||			to edit a branch (Nodes)				||" << endl;
+		cout << "||		 branches\t\t||			displays all branches					||" << endl;
+		cout << "||	   current-branch\t\t||			displays current branch					||" << endl;
+		cout << "||	   delete-branch\t\t||			deletes a branch						||" << endl;
+		cout << "||		  delete\t\t||			deletes a repository					||" << endl;
+		cout << "||		   cls	\t\t||			clears console screen					||" << endl;
+		cout << "||		   exit	\t\t||			exit program							||" << endl;
+		cout << "||_____________________||__________________________________________________||" << endl;
+
+	}*/
+
+	void commands() {
+		using std::cout;
+		using std::endl;
+		using std::setw;
+		using std::setfill;
+
+		const int width = 30;
+		cout << setfill('_') << "," << setw(width + 3) << "_," << setw(width + 3) << "," << endl;
+		cout << setfill(' ') << "| " << setw(width / 2) << "COMMANDS" << setw(width / 2 + 2) << "|" << setw(width / 2 + 7) << "INSTRUCTIONS" << setw(width/2 - 4) << " |" << endl;
+		cout << setfill('_') << "|" << setw(width + 3) << "_|" << setw(width + 3) << "|" << endl;
+		
+		cout << setfill(' ') << "| " << setw(width) << "init" << " | " << setw(width) << "initialize a repository" << " |" << endl;
+		cout << "| " << setw(width) << "branch" << " | " << setw(width) << "create a new branch" << " |" << endl;
+		cout << "| " << setw(width) << "checkout" << " | " << setw(width) << "switch between branches" << " |" << endl;
+		cout << "| " << setw(width) << "save" << " | " << setw(width) << "save a repository" << " |" << endl;
+		cout << "| " << setw(width) << "load" << " | " << setw(width) << "loads a repository" << " |" << endl;
+		cout << "| " << setw(width) << "log" << " | " << setw(width) << "displays commit log history" << " |" << endl;
+		cout << "| " << setw(width) << "commit" << " | " << setw(width) << "to edit a branch (Nodes)" << " |" << endl;
+		cout << "| " << setw(width) << "merge" << " | " << setw(width) << "to merge branches" << " |" << endl;
+		cout << "| " << setw(width) << "branches" << " | " << setw(width) << "displays all branches" << " |" << endl;
+		cout << "| " << setw(width) << "current-branch" << " | " << setw(width) << "displays current branch" << " |" << endl;
+		cout << "| " << setw(width) << "delete-branch" << " | " << setw(width) << "deletes a branch" << " |" << endl;
+		cout << "| " << setw(width) << "delete" << " | " << setw(width) << "deletes a repository" << " |" << endl;
+		cout << "| " << setw(width) << "cls" << " | " << setw(width) << "clears console screen" << " |" << endl;
+		cout << "| " << setw(width) << "exit" << " | " << setw(width) << "exit program" << " |" << endl;
+		cout << setfill('_') << "|" << setw(width + 3) << "_|" << setw(width + 3) << "|" << endl;
+
+		cout << setfill(' ') << endl;
 	}
 
 };

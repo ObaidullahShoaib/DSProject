@@ -167,6 +167,42 @@ public:
 		//folderManager.copy_folder(folderManager.get_current_path() / branchName, folderManager.get_current_path() / sourceBranchName);
 	}
 
+	void showBranches()
+	{
+		// shows branches of active repo
+		for (int i = 0; i < branchCount; i++)
+		{
+			cout << allBranches[i]->getBranchName() << endl;
+		}
+		
+	}
+
+	void deleteBranch(fs::path branchName)
+	{
+		// delete branch
+		Branch** temp = new Branch * [branchCount - 1];
+		int index = 0;
+		for (int i = 0; i < branchCount; i++) {
+			if (allBranches[i]->getBranchName() == branchName)
+			{
+				delete allBranches[i];
+			}
+			else
+			{
+				temp[index] = allBranches[i];
+				index++;
+			}
+		}
+		delete[] allBranches;
+		allBranches = temp;
+		branchCount--;
+	}
+
+	void getCurrentBranch()
+	{
+		cout << "\nCurrent Branch: " << activeBranch->getBranchName() << endl;
+	}
+
 	void addBranch(fs::path branchName, fs::path CSVFileName, int index, bool branchCountSet = false)
 	{
 		Branch** temp = !branchCountSet ? new Branch * [branchCount + 1]: new Branch *[index + 1];
