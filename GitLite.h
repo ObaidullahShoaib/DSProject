@@ -20,14 +20,14 @@ public:
 
 			if (input == "init") 
 			{
+				fs::path csvPath = this->openFile();
 				cout << "Enter Repository Name: ";
 				string name;
 				cin >> name;
 				fs::path repoName = name;
-				manager.createRepo(name); // Initialize repository
+				manager.createRepo(name, foldermanager.get_current_path() / csvPath); // Initialize repository
 			}
-			else if (input == "branch") 
-			{
+			else if (input == "branch") {
 				fs::path branchName;
 				cin >> branchName;
 				manager.createBranch(branchName);
@@ -93,4 +93,53 @@ public:
 
 		}
 	}
+
+	fs::path openFile(fs::path CSVPath = "")
+	{
+		// Declarations:
+		ifstream inputFile;
+		char* file_name = new char[1000];
+
+		// Opening File:
+		if (CSVPath == "")
+		{
+			int c = 1;
+			do
+			{
+				cout << "Input the name of the file with extension: "; // example.csv                
+				// reading filename into char* then converting to fs::path
+
+				if (c == 1)
+					cin.ignore();
+				
+				
+				cin.getline(file_name, 1000);
+				c++;
+				
+				inputFile.open(CSVPath != "" ? CSVPath : file_name);
+
+			} while (!inputFile.is_open());
+			if (!inputFile.is_open())
+				cout << "Error: Could not open the file. Please try again." << endl;
+			else
+			{
+				CSVPath = file_name;
+				cout << "File opened successfully!" << endl;
+			}
+			return CSVPath;
+		}
+
+		if (inputFile.is_open())
+			inputFile.close();
+		inputFile.open(CSVPath != "" ? CSVPath : file_name);
+		
+		if (!inputFile.is_open())
+			cout << "Error: Could not open the file. Please try again." << endl;
+		else		
+			cout << "File opened successfully!" << endl;
+
+		return CSVPath;
+	}
+		
 };
+
