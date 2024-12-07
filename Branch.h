@@ -231,6 +231,23 @@ public:
 	}
 
 
+	void commitMenu(int& choice) 
+	{
+		while (choice != 4) 
+		{
+			cout << "\nMENU: ";
+			cout << "\n1. Add a Record";
+			cout << "\n2. Delete a Record";
+			cout << "\n3. Edit a Record";
+			cout << "\n4. Exit Commit Menu";
+			cout << "\nEnter choice: ";
+			cin >> choice;
+		}
+		return;
+
+	}
+
+
 	/*
 	* 
 	* 
