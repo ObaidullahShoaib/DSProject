@@ -58,7 +58,7 @@ public:
 				manager.commit();
 			}
 			else if (input == "log") {
-				cout << "Checkout Log:" << endl;
+				cout << "Commit Log History:" << endl;
 				manager.log();
 			}
 			else if (input == "branches")

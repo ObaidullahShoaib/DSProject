@@ -338,7 +338,8 @@ public:
 	}
 	void log() 
 	{
-		this->activeRepo->log();
+		fs::path commitLogPath = folderManager.get_current_path() / this->activeRepo->getName().c_str() / this->activeRepo->getActiveBranch()->getBranchName().c_str() /"commitLog.txt";
+		this->activeRepo->log(commitLogPath);
 	}
 
 	~RepoManager() {

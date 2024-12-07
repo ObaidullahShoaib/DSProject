@@ -302,8 +302,8 @@ public:
 	}
 
 
-	void log() {
-		activeBranch->showCommits();
+	void log(fs::path commitLogFilePath) {
+		activeBranch->showCommits(commitLogFilePath);
 	}
 
 

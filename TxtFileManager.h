@@ -65,16 +65,19 @@ public:
         }
     }
 
-    void writeFileData(fs::path file_name, String data_to_append) {
-        std::ofstream outputFile(file_name, std::ios::app);
+    void writeFileData(fs::path file_name, String data_to_append) 
+    {
+        ofstream outputFile(file_name, ios::app);
 
-        if (outputFile.is_open()) {
-            outputFile << data_to_append << std::endl; // Append the data to the file
+        if (outputFile.is_open()) 
+        {
+            outputFile << data_to_append << endl; // Append the data to the file
             outputFile.close(); // Close the file
-            std::cout << "Data appended to the file successfully: " << file_name << std::endl;
+            cout << "Data appended to the file successfully: " << file_name << endl;
         }
-        else {
-            std::cout << "Error: Could not open the file for writing." << std::endl;
+        else 
+        {
+            cout << "Error: Could not open the file for writing." << endl;
         }
     }
 

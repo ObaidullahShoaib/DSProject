@@ -60,8 +60,7 @@ public:
 		my_strcpy(this->file_name, fileName.string().c_str());
 	}
 
-    void openFile(fs::path CSVPath = "")
-    {
+    void openFile(fs::path CSVPath = "")    {
         if (CSVPath == "")
         {
             int c = 1;

@@ -259,23 +259,23 @@ public:
 
 	void commitMsg() {
 		commitCount++;
-		string index = intToString(commitCount);
-		string commitNo = "Commit# " + index + ":";
-		const char* i = commitNo.c_str();
-		char* i1 = new char[commitNo.length() + 1];
-		my_strcpy(i1, i);
+		String index = intToString(commitCount);
+		String commitData = "Commit# ";
+		char ch = commitCount + '0';
+		commitData.appendchAtStart(commitCount);
+		commitData += "  Message: ";
+
 		char* msg = new char[1000];
 		cout << "Enter message to commit" << endl;
 		cin.ignore();
 		cin.getline(msg, 1000);
-
-		char* timeStamp = getTimeStamp();
+		
+		commitData += msg;
+		String timeStamp = getTimeStamp();
 		// append timeStamp with msg and store it in char* data
-		char* data = new char[1000];
-		my_strcpy(data, timeStamp);
-		my_strcat(data, msg);
-		commitLog.writeFileData(folderManager.get_current_path() / this->branchName / "commitLog.txt", i1);
-		commitLog.writeFileData(folderManager.get_current_path() / this->branchName / "commitLog.txt", data);
+		commitData += "  TimeStamp: ";
+		commitData += timeStamp;
+		commitLog.writeFileData(folderManager.get_current_path() / this->branchName / "commitLog.txt", commitData);
 	}
 
 	char* getTimeStamp() {
@@ -300,11 +300,40 @@ public:
 			cout << "Error: Could not open the file for writing." << endl;
 		}
 	}
-	void showCommits() {
-		commitLog.displayFileData();
+	void showCommits(fs:: path commitLogFilePath) 
+	{
+		displayCommitLog(commitLogFilePath);
+		
 	}
 
+	void displayCommitLog(fs::path commitLogFilePath) 
+	{
+		ifstream inputFile(commitLogFilePath);
+		if (!inputFile.is_open()) 
+		{
+			cout << "Error: Could not open the file for reading." << endl;
+			return;
+	
+		}
+		// dynamic array to store lines
+		String* lines = new String[1000];
+		int lineCount = 0;
 
+		
+		char buffer[1000];
+		while (inputFile.getline(buffer, 1000)) {
+			lines[lineCount] = buffer;
+			lineCount++;
+		}
+		cout << "---------------------------------------------------------------------------" << endl;
+		inputFile.close();
+		for (int i = lineCount - 1; i >= 0; i--) {
+			cout << lines[i] << endl;
+		}
+		cout << "---------------------------------------------------------------------------" << endl;
+		cout << endl;
+		delete[] lines;
+	}
 	void commitMenu(int& choice) {
 		do {
 			cout << "\nMENU: ";

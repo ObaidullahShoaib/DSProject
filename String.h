@@ -38,6 +38,17 @@ public:
     // Constructors and Destructor
     String() : str(nullptr) {}
 
+    char* getStr() const {
+		return str;
+    }
+
+    // set str
+	void setStr(const char* s) {
+		delete[] str;
+		str = new char[my_strlen(s) + 1];
+		my_strcpy(str, s);
+	}
+    
     String(const char* s) {
         str = new char[my_strlen(s) + 1];
         my_strcpy(str, s);
@@ -61,6 +72,7 @@ public:
         }
         return *this;
     }
+
 
     String& operator=(const char* s) {
         delete[] str;
@@ -131,6 +143,8 @@ public:
         *this = *this + s;
         return *this;
     }
+
+   
 
     // Utility Functions
     int length() const {
@@ -207,6 +221,25 @@ public:
         while (str[end] == ' ') end--;
         return substr(start, end - start + 1);
     }
+    
+
+    // Append a character at the start of the string
+    String appendchAtStart(char ch) const
+    {
+        String temp = "";
+        temp.str = new char[this->length() + 2];
+        temp.str[0] = ch;
+        for (int i = 0; i < this->length(); i++) {
+            temp.str[i + 1] = str[i];
+        }
+
+        // Null-terminate the new string
+        temp.str[this->length() + 1] = '\0';
+
+        return temp;
+    }
+
+
 
     // Additional Features
     bool starts_with(const char* prefix) const {
@@ -279,6 +312,7 @@ int my_strcmp(const char* p1, const char* p2) {
 
 		}
 	}
+
 }
 
 char* my_strtok(char* str, const char* delim) {
@@ -336,18 +370,17 @@ int stringToInt(const std::string& str) {
 }
 
 
-string intToString(int num) {
+String intToString(int num) {
 	if (num == 0) {
 		return "0";
 	}
 
-	string result;
+	String result = "";
 	while (num > 0) {
 		char digit = num % 10 + '0';
-		result = digit + result;
+		result.appendchAtStart(digit);
 		num /= 10;
 	}
-
 	return result;
 }
 
