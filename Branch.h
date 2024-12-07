@@ -146,11 +146,12 @@ public:
 		createNodeFile(tree1->getRoot());
 	}
 
+	void writeNodeToFile(TreeNode<String>* root)
+	{
+		// if the node is not updated then do not write it
+		if (!root->updated)
+			return;
 
-	void createNodeFile(TreeNode<String>* root) {
-		if (root == nullptr) return;
-		createNodeFile(root->getChild(0));
-		//////////////////////////////////////////////////////////////////////////////
 		fs::path fileName = folderManager.get_current_path() / this->branchName / "Nodes" / root->nodeName;
 		ofstream outputFile;
 		outputFile.open(fileName);
@@ -158,29 +159,42 @@ public:
 		{
 			outputFile.close();
 			cout << "Error creating file: " << fileName << endl;
+			return;
 		}
 		else
 		{
 			cout << "File created successfully: " << fileName << endl;
 		}
+
+		// set updated flag to false as changes are written to file
+		root->updated = false;
+
 		// write data to file
-		outputFile << root->id << endl;
-		outputFile << root->key << endl;
-		outputFile << root->data << endl;
-		outputFile << root->numOfChildren << endl;
+		outputFile << root->id << '\n';
+		outputFile << root->key << '\n';
+		outputFile << root->data << '\n';
+		outputFile << root->numOfChildren << '\n';
 		for (int i = 0; i < root->numOfChildren; i++) {
 			if (root->getChild(i) != nullptr)
-				outputFile << root->getChild(i)->nodeName.string() << endl;
+				outputFile << root->getChild(i)->nodeName.string() << '\n';
 			else {
-				outputFile << "Nullptr" << endl;
+				outputFile << "Nullptr" << '\n';
 			}
 		}
 		if (root->getParent() != nullptr)
-			outputFile << root->getParent()->nodeName.string() << endl;
+			outputFile << root->getParent()->nodeName.string() << '\n';
 		else {
 			outputFile << "Nullptr" << endl;
 		}
+
 		outputFile.close();
+	}
+
+	void createNodeFile(TreeNode<String>* root) {
+		if (root == nullptr) return;
+		createNodeFile(root->getChild(0));
+		//////////////////////////////////////////////////////////////////////////////
+		writeNodeToFile(root);
 		/////////////////////////////////////////////////////////////////////////////////
 		createNodeFile(root->getChild(1));
 	}

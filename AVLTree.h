@@ -69,11 +69,13 @@ private:
 	void updateHeight(AVLNode<T>* node) {
 		if (node == nullptr) return;
 		node->height = 1 + max(getHeight(node->descendants[0]), getHeight(node->descendants[1]));
+		node->updated = true;
 	}
 
 	void setParent(AVLNode<T>* child, AVLNode<T>* parent) {
 		if (child != nullptr) {
 			child->parent = parent;
+			child->updated = true;
 		}
 	}
 
@@ -83,6 +85,7 @@ private:
 		AVLNode<T>* leftRightChild = leftChild->descendants[1];
 		leftChild->descendants[1] = node;
 		node->descendants[0] = leftRightChild;
+		node->updated = true;
 		updateHeight(node);
 		updateHeight(leftChild);
 		setParent(leftRightChild, node);
@@ -100,6 +103,7 @@ private:
 		AVLNode<T>* rightLeftChild = rightChild->descendants[0];
 		rightChild->descendants[0] = node;
 		node->descendants[1] = rightLeftChild;
+		node->updated = true;
 		updateHeight(node);
 		updateHeight(rightChild);
 		setParent(rightLeftChild, node);
@@ -118,12 +122,14 @@ private:
 		if (balanceFactor > 1) {
 			if (getBalanceFactor(node->descendants[0]) < 0) {
 				node->descendants[0] = rotateLeft(node->descendants[0]);
+				node->updated = true;
 			}
 			node = rotateRight(node);
 		}
 		else if (balanceFactor < -1) {
 			if (getBalanceFactor(node->descendants[1]) > 0) {
 				node->descendants[1] = rotateRight(node->descendants[1]);
+				node->updated = true;
 			}
 			node = rotateLeft(node);
 		}
@@ -133,15 +139,19 @@ private:
 
 	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType, int count, int hash = -1) {
 		if (node == nullptr) {
-			return new AVLNode<T>(key, data, hashType, count);
+			node = new AVLNode<T>(key, data, hashType, count);
+			node->updated = true;
+			return node;
 		}
 		if (key < node->key) {
 			node->descendants[0] = insertHelper(node->descendants[0], key, data, hashType, count);
+			node->updated = true;
 			// Explicitly set parent
 			setParent(node->descendants[0], node);
 		}
 		else if (key >= node->key) {
 			node->descendants[1] = insertHelper(node->descendants[1], key, data, hashType, count);
+			node->updated = true;
 			// Explicitly set parent
 			setParent(node->descendants[1], node);
 		}
@@ -153,10 +163,12 @@ private:
 		if (node == nullptr) return nullptr;
 		if (key < node->key) {
 			node->descendants[0] = removeHelper(node->descendants[0], key);
+			node->updated = true;
 			setParent(node->descendants[0], node);
 		}
 		else if (key > node->key) {
 			node->descendants[1] = removeHelper(node->descendants[1], key);
+			node->updated = true;
 			setParent(node->descendants[1], node);
 		}
 		else {
@@ -176,6 +188,7 @@ private:
 				node->key = temp->key;
 				node->data = temp->data;
 				node->descendants[1] = removeHelper(node->descendants[1], temp->key);
+				node->updated = true;
 				setParent(node->descendants[1], node);
 			}
 		}

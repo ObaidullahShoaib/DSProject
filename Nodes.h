@@ -22,14 +22,15 @@ struct TreeNode {
 	int hashType;
 	int instructorHash;
 	unsigned char shaHash[SHA256_DIGEST_LENGTH];
+	bool updated;
 
 	// Number of children by default is 2 because that will be the minimum number of children in our implementation
-	TreeNode(int id) : numOfChildren(2), id(id) {
+	TreeNode(int id) : numOfChildren(2), id(id), updated(false) {
 		nodeName = generateNodeName();
 	}
 
 	TreeNode(T key, String data, int hashType, int id ,int numOfChildren = 2)
-		: key(key), data(data), numOfChildren(2), hashType(hashType), id(id) {
+		: key(key), data(data), numOfChildren(2), hashType(hashType), id(id), updated(false) {
 		nodeName = generateNodeName();
 	}
 	~TreeNode() { }
@@ -79,4 +80,22 @@ public:
 	void nullAllDescendants() { FOR(0, this->numOfChildren) this->descendants[i] = nullptr; }
 	TreeNode<T>* getChild(int index) override { return this->descendants[index]; }
 	TreeNode<T>* getParent() override { return this->parent; }
+
+	void setColor(int color) 
+	{ 
+		if (this->color != color) 
+		{
+			this->color = color;
+			this->updated = true;
+		}		
+	}
+
+	void setParent(RBNode* newParent)
+	{
+		if (this->parent != newParent)
+		{
+			this->parent = newParent;
+			this->updated = true;
+		}
+	}
 };

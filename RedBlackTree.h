@@ -49,9 +49,9 @@ private:
             if (parent == grandparent->descendants[0]) {
                 RBNode<T>* uncle = grandparent->descendants[1];
                 if (uncle != nullptr && uncle->color == 0) {
-                    grandparent->color = 0;
-                    parent->color = 1;
-                    uncle->color = 1;
+                    grandparent->setColor(0);
+                    parent->setColor(1);
+                    uncle->setColor(1);
                     node = grandparent;
                 }
                 else {
@@ -59,18 +59,24 @@ private:
                         rotateLeft(parent);
                         node = parent;
                         parent = node->parent;
+                        node->updated = true;
                     }
                     rotateRight(grandparent);
-                    swap(parent->color, grandparent->color);
+                    if (parent->color != grandparent->color)
+                    {
+                        swap(parent->color, grandparent->color);
+                        parent->updated = true;
+                        grandparent->updated = true;
+                    }
                     node = parent;
                 }
             }
             else {
                 RBNode<T>* uncle = grandparent->descendants[0];
                 if (uncle != nullptr && uncle->color == 0) {
-                    grandparent->color = 0;
-                    parent->color = 1;
-                    uncle->color = 1;
+                    grandparent->setColor(0);
+                    parent->setColor(1);
+                    uncle->setColor(1);
                     node = grandparent;
                 }
                 else {
@@ -78,14 +84,21 @@ private:
                         rotateRight(parent);
                         node = parent;
                         parent = node->parent;
+                        node->updated = true;
                     }
                     rotateLeft(grandparent);
-                    swap(parent->color, grandparent->color);
+                    if (parent->color != grandparent->color)
+                    {
+                        swap(parent->color, grandparent->color);
+                        parent->updated = true;
+                        grandparent->updated = true;
+                    }
                     node = parent;
                 }
             }
         }
-        root->color = 1; // 1: BLACK
+        if (root->color != 1)
+            root->setColor(1); // 1: BLACK
     }
 
     void fixDelete(RBNode<T>*& node, RBNode<T>*& root) {
@@ -95,34 +108,36 @@ private:
 
                 // Case 1: Sibling is red
                 if (sibling->color == 0) {
-                    sibling->color = 1;
-                    node->parent->color = 0;
+                    sibling->setColor(1);
+                    node->parent->setColor(0);
                     rotateLeft(node->parent);
                     sibling = node->parent->descendants[1];
+                    node->parent->updated = true;
                 }
 
                 // Case 2: Both sibling's children are black
                 if ((sibling->descendants[0] == nullptr || sibling->descendants[0]->color == 1) &&
                     (sibling->descendants[1] == nullptr || sibling->descendants[1]->color == 1)) {
-                    sibling->color = 0;
+                    sibling->setColor(0);
                     node = node->parent;
                 }
                 else {
                     // Case 3: Sibling's right child is black, left child is red
                     if (sibling->descendants[1] == nullptr || sibling->descendants[1]->color == 1) {
                         if (sibling->descendants[0] != nullptr) {
-                            sibling->descendants[0]->color = 1;
+                            sibling->descendants[0]->setColor(1);
                         }
-                        sibling->color = 0;
+                        sibling->setColor(0);
                         rotateRight(sibling);
                         sibling = node->parent->descendants[1];
+                        node->parent->updated = true;
                     }
 
                     // Case 4: Sibling's right child is red
-                    sibling->color = node->parent->color;
-                    node->parent->color = 1;
+                    sibling->setColor(node->parent->color);
+                    node->parent->setColor(1);
                     if (sibling->descendants[1] != nullptr) {
-                        sibling->descendants[1]->color = 1;
+                        sibling->descendants[1]->setColor(1);
                     }
                     rotateLeft(node->parent);
                     node = root;
@@ -133,34 +148,36 @@ private:
 
                 // Case 1: Sibling is red
                 if (sibling->color == 0) {
-                    sibling->color = 1;
-                    node->parent->color = 0;
+                    sibling->setColor(1);
+                    node->parent->setColor(0);
                     rotateRight(node->parent);
                     sibling = node->parent->descendants[0];
+                    node->parent->updated = true;
                 }
 
                 // Case 2: Both sibling's children are black
                 if ((sibling->descendants[0] == nullptr || sibling->descendants[0]->color == 1) &&
                     (sibling->descendants[1] == nullptr || sibling->descendants[1]->color == 1)) {
-                    sibling->color = 0;
+                    sibling->setColor(0);
                     node = node->parent;
                 }
                 else {
                     // Case 3: Sibling's left child is black, right child is red
                     if (sibling->descendants[0] == nullptr || sibling->descendants[0]->color == 1) {
                         if (sibling->descendants[1] != nullptr) {
-                            sibling->descendants[1]->color = 1;
+                            sibling->descendants[1]->setColor(1);
                         }
-                        sibling->color = 0;
+                        sibling->setColor(0);
                         rotateLeft(sibling);
                         sibling = node->parent->descendants[0];
+                        node->parent->updated = true;
                     }
 
                     // Case 4: Sibling's left child is red
-                    sibling->color = node->parent->color;
-                    node->parent->color = 1;
+                    sibling->setColor(node->parent->color);
+                    node->parent->setColor(1);
                     if (sibling->descendants[0] != nullptr) {
-                        sibling->descendants[0]->color = 1;
+                        sibling->descendants[0]->setColor(1);
                     }
                     rotateRight(node->parent);
                     node = root;
@@ -168,8 +185,8 @@ private:
             }
         }
 
-        if (node != nullptr) {
-            node->color = 1;
+        if (node != nullptr && node->color != 1) {
+            node->setColor(1);
         }
     }
 
@@ -186,13 +203,16 @@ private:
         }
         else if (u == u->parent->descendants[0]) {
             u->parent->descendants[0] = v;
+            u->parent->updated = true;
         }
         else {
             u->parent->descendants[1] = v;
+            u->parent->updated = true;
         }
 
         if (v != nullptr) {
             v->parent = u->parent;
+            v->updated = true;
         }
     }
 
@@ -271,6 +291,7 @@ public:
     void insert(T key, String data, int hashType) override {
         count++;
         RBNode<T>* node = new RBNode<T>(key, data, hashType, this->count);
+        node->updated = true;
         RBNode<T>* parent = nullptr;
         RBNode<T>* current = root;
 
@@ -282,16 +303,18 @@ public:
                 current = current->descendants[1];
         }
 
-        node->parent = parent;
+        node->setParent(parent);
 
         if (parent == nullptr) {
             root = node;
         }
         else if (node->key < parent->key) {
             parent->descendants[0] = node;
+            parent->updated = true;
         }
         else {
             parent->descendants[1] = node;
+            parent->updated = true;
         }
 
         fixInsert(node);
@@ -341,17 +364,18 @@ public:
             x = y->descendants[1];
             if (y->parent == z) {
                 if (x != nullptr)
-                    x->parent = y;
+                    x->setParent(y);
             }
             else {
                 transplant(root, y, y->descendants[1]);
                 y->descendants[1] = z->descendants[1];
-                y->descendants[1]->parent = y;
+                y->descendants[1]->setParent(y);
+                y->updated = true;
             }
             transplant(root, z, y);
             y->descendants[0] = z->descendants[0];
-            y->descendants[0]->parent = y;
-            y->color = z->color;
+            y->descendants[0]->setParent(y);
+            y->setColor(z->color);
         }
 
         delete z;
