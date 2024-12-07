@@ -292,22 +292,44 @@ public:
 		activeRepo->commit();
 	}
 	void saveMetaData() {
-		ofstream RepositoryMetaData = ofstream(folderManager.get_current_path() / "RepositoryMetaData.txt");
-		if (RepositoryMetaData.is_open())
-		{
-			RepositoryMetaData << activeRepo->getName() << endl;
-			RepositoryMetaData << this->repoCount << endl;
-			for (int i = 0; i < this->repoCount; i++) {
-				RepositoryMetaData << allRepos[i]->getName() << endl;
+		for (int i = 0; i < repoCount; i++) {
+			Repository* temp = allRepos[i];
+			//repoMetadata.SaveRepoToTxt(*temp, temp->getFolderManager().get_current_path());
+
+
+			// save above info in a txt file in pathtosaveto location
+			string fileName = temp->getName().c_str();
+			fileName += "_data.txt";
+
+			fs::path pathToSaveToFile = temp->getFolderManager().get_current_path() / fileName;
+			// create file
+			this->repoMetadata.outputFile = ofstream(pathToSaveToFile);
+			// open file
+			if (!this->repoMetadata.outputFile)
+			{
+				cout << "Error: Could not open the file for writing." << endl;
+				return;
 			}
-			RepositoryMetaData.close();
-			for (int i = 0; i < this->repoCount; i++) {
-				allRepos[i]->save();
+			// write data to file
+			this->repoMetadata.outputFile << temp->getName().c_str() << endl;
+			this->repoMetadata.outputFile << temp->getFolderManager().get_current_path().string() << endl;
+			this->repoMetadata.outputFile << temp->getCSVPath().string() << endl;	// storing csv path
+			this->repoMetadata.outputFile << temp->getTreeType() << endl;
+			this->repoMetadata.outputFile << temp->getColumnNo() << endl;
+			//this->repoMetadata.outputFile << activeRepo->getHashType() << endl;
+			this->repoMetadata.outputFile << temp->getBranchCount() << endl;
+			for (int i = 0; i < temp->getBranchCount(); i++)
+			{
+				this->repoMetadata.outputFile << temp->getAllBranches()[i]->getBranchName().string() << endl;
 			}
-		}
-		else
-		{
-			cout << "Error: Could not open the file for writing." << endl;
+			this->repoMetadata.outputFile << temp->getActiveBranch()->getBranchName().string() << endl;
+			this->repoMetadata.outputFile.close();
+
+
+			// copying repository to a new folder
+			fs::path newPath = temp->getName().c_str();
+			newPath += "_copy";
+			folderManager.copy_folder(folderManager.get_current_path() / newPath, folderManager.get_current_path() / temp->getName().c_str(), true);
 		}
 	}
 	void log() 
