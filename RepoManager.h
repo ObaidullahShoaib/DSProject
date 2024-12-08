@@ -7,22 +7,35 @@ using namespace std;
 
 namespace fs = std::filesystem;
 
+
 class RepoManager {
-	Repository* activeRepo;
-	Repository** allRepos;
+	Repository* activeRepo;			// Pointer to the currently active repository
+	Repository** allRepos;			// Array of pointers to all repositories
 	
-	TxtFileManager repoMetadata;
-	FolderManager folderManager;
-	fs::path baseGitLitePath;
-	int repoCount;
+	TxtFileManager repoMetadata;	// Text File Manager for storing Repository Metadata
+	FolderManager folderManager;	// Folder Manager for creating and accessing repositories
+	fs::path baseGitLitePath;		// Base path for Git Lite
+	int repoCount;					// Number of repositories
 
 public:
+
+	/*
+	* 
+	* ----- Constructor for RepoManager -----
+	* 
+	*/
 	RepoManager(fs::path GitLitePath):folderManager(GitLitePath) {
 		this->baseGitLitePath = GitLitePath;
 		activeRepo = nullptr;
 		allRepos = nullptr;
 		repoCount = 0;
 	}
+
+	/*
+	* 
+	* ----- Function to create a repository -----
+	* 
+	*/
 	Repository* createRepo(fs::path name, fs::path CSVFileName, fs::path activeCSVPath = "", String treeType = "", int columnNo = 0, int hashType = 0) 
 	{
 
@@ -38,6 +51,13 @@ public:
 		this->repoCount++;
 		return allRepos[repoCount - 1];
 	}
+
+
+	/*
+	* 
+	* ----- Simple Self-explanatory Functions: -----
+	* 
+	*/
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
 		for (int i = 0; i < repoCount; i++) {
@@ -50,6 +70,7 @@ public:
 		}
 		cout << "Repository not found" << endl;
 	}
+
 
 	void checkout(fs::path commitID) {
 		if (activeRepo == nullptr) {
@@ -165,7 +186,7 @@ public:
 			}
 		}
 		
-		cout << "\nRepository not found" << endl;
+		cout << "\nRepository not found or not loaded." << endl;
 	}
 
 	// to load user's chosen repository from txt file:
