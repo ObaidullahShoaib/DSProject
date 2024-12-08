@@ -279,7 +279,6 @@ public:
 					key_data[j] = key_data[j + 1];
 				}
 				rowCount--;
-                //reSize();
 				break;
 			}
         }
@@ -299,7 +298,6 @@ public:
 			if (my_line != data.c_str())
 				temp << line << endl;
 		}
-		rowCount--;
 		temp.close();
 		file.close();
 		remove(branchCSVPath / this->file_name);
