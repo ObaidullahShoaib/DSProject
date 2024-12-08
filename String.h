@@ -394,14 +394,15 @@ String intToString(int num) {
 	String result = "";
 	while (num > 0) {
 		char digit = num % 10 + '0';
-		result.appendchAtStart(digit);
+		result = result.appendchAtStart(digit);
 		num /= 10;
 	}
 	return result;
 }
 
 // Function to extract the .csv filename
-String extractCSVFileName(fs::path fp) {
+String extractCSVFileName(fs::path fp)
+{
 	String filePath = fp.string().c_str();
     // Remove trailing slashes
     String normalizedPath = filePath;
