@@ -23,7 +23,7 @@ public:
 		allRepos = nullptr;
 		repoCount = 0;
 	}
-	Repository* createRepo(fs::path name, fs::path CSVFileName, fs::path activeCSVPath = "", String treeType = "", int columnNo = 0) 
+	Repository* createRepo(fs::path name, fs::path CSVFileName, fs::path activeCSVPath = "", String treeType = "", int columnNo = 0, int hashType = 0) 
 	{
 
 		Repository** temp = new Repository * [repoCount + 1];
@@ -31,7 +31,7 @@ public:
 			temp[i] = allRepos[i];
 		}
 		folderManager.create_folder(name);
-		temp[repoCount] = new Repository(name, CSVFileName, folderManager.get_current_path() / name, activeCSVPath, treeType, columnNo);
+		temp[repoCount] = new Repository(name, CSVFileName, folderManager.get_current_path() / name, activeCSVPath, treeType, columnNo, hashType);
 		delete[] allRepos;
 		allRepos = temp;
 		this->activeRepo = allRepos[repoCount];
@@ -221,28 +221,40 @@ public:
 		char* line = new char[256];
 
 		// read data from file
+
+		// repo name
 		this->repoMetadata.inputFile.getline(line, 256);
 		my_strcpy(tempRepoName, line);
 
+		// repo path
 		this->repoMetadata.inputFile.getline(line, 256);
 		my_strcpy(tempRepoPath, line);
 
+		// active csv path
 		this->repoMetadata.inputFile.getline(line, 256);
 		fs::path activeCSVPath = line;
 
+		// tree type
 		this->repoMetadata.inputFile.getline(line, 256);
 		String treeType = line;
 
+		// column no
 		this->repoMetadata.inputFile.getline(line, 256);
 		int columnNo = atoi(line);
 
+		// hash type
+		this->repoMetadata.inputFile.getline(line, 256);
+		int hashType = atoi(line);
+
+		// creating new repository (from loaded data):
 		String CSVFileName = extractCSVFileName(activeCSVPath);
 		fs::path CSVFileNamePathed = CSVFileName.c_str();
-		Repository* newRepo = this->createRepo(repoName, CSVFileNamePathed, activeCSVPath, treeType, columnNo);
+		Repository* newRepo = this->createRepo(repoName, CSVFileNamePathed, activeCSVPath, treeType, columnNo, hashType);
 		this->activeRepo = newRepo;
 
 		newRepo->setName(tempRepoName);
 
+		// Branch Count:
 		this->repoMetadata.inputFile.getline(line, 256);
 		newRepo->setBranchCount(atoi(line));
 		

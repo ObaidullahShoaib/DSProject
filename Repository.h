@@ -103,12 +103,13 @@ public:
 	*
 	*
 	*/
-    Repository(fs::path repoName, fs::path CSVFileName, fs::path repoPath,fs::path csvPath = "", String treeType = "", int columnNo = 0)
-		: branchCount(1), folderManager(repoPath), treeType(treeType), columnNo(columnNo)
+    Repository(fs::path repoName, fs::path CSVFileName, fs::path repoPath,fs::path csvPath = "", String treeType = "", int columnNo = 0, int hashType = 0)
+		: branchCount(1), folderManager(repoPath), treeType(treeType), columnNo(columnNo), hashType(hashType)
 	{
 		this->name = repoName.string().c_str();
 
-		this->inputHashType();
+		if (this->hashType == 0)
+			this->inputHashType();
 
 		this->allBranches = new Branch * [branchCount];
 		this->allBranches[0] = new Branch("main", CSVFileName, this->hashType, this->treeType, this->columnNo, repoPath, csvPath); 

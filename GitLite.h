@@ -116,7 +116,7 @@ public:
 				break; // Exit the program
 			}
 			else {
-				cout << "Invalid command. Please try again.\n";
+				cout << "Invalid command OR Feature Upcoming. Please try again.\n";
 			}
 
 		}
