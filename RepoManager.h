@@ -38,7 +38,6 @@ public:
 		this->repoCount++;
 		return allRepos[repoCount - 1];
 	}
-
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
 		for (int i = 0; i < repoCount; i++) {
@@ -129,7 +128,7 @@ public:
 		this->repoMetadata.outputFile << activeRepo->getCSVPath().string() << endl;	// storing csv path
 		this->repoMetadata.outputFile << activeRepo->getTreeType() << endl;
 		this->repoMetadata.outputFile << activeRepo->getColumnNo() << endl;
-		//this->repoMetadata.outputFile << activeRepo->getHashType() << endl;
+		this->repoMetadata.outputFile << activeRepo->getHashType() << endl;
 		this->repoMetadata.outputFile << activeRepo->getBranchCount() << endl;
 		for (int i = 0; i < activeRepo->getBranchCount(); i++)
 		{
@@ -243,12 +242,11 @@ public:
 		this->activeRepo = newRepo;
 
 		newRepo->setName(tempRepoName);
-		// newRepo->setFolderManager(new FolderManager(tempRepoPath));
 
 		this->repoMetadata.inputFile.getline(line, 256);
 		newRepo->setBranchCount(atoi(line));
 		
-		// wasting 1 line:
+		// wasting 1 line that stores the main branch name (since main branch is alredy created in Repository Constructor):
 		this->repoMetadata.inputFile.getline(line, 256);
 
 		// copying all branches other than main (main auto-constructed in Repo Constructor)

@@ -8,7 +8,6 @@ class AVLTree :public Tree<T> {
 	int count;
 public:
 	AVLTree() : root(nullptr) {}
-
 	AVLTree(const AVLTree& other) {
 		root = copyTree(other.root);
 		this->count = other.count;
@@ -21,11 +20,9 @@ public:
 		}
 		return *this;
 	}
-
 	~AVLTree() {
 		deleteTree();
 	}
-	
 	void insert(T key, String data, int hashType) override {
 		count++;
 		bool* firstReturn = new bool(false);
@@ -47,8 +44,6 @@ public:
 	Tree<T>* clone() override {
 		return new AVLTree<T>(*this);
 	}
-
-
 private:
 	AVLNode<T>* findNode(AVLNode<T>* node, int id) {
 		if (node == nullptr) return nullptr;

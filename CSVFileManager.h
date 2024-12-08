@@ -351,7 +351,6 @@ public:
         }
     }
 
-
     void appendToFile(fs ::path pathOfFile,String str) {
 		outputFile.open(pathOfFile, ios::app);
 		if (!outputFile)

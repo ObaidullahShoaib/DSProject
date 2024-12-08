@@ -1,50 +1,30 @@
 #pragma once
-#include "Hashing.h"
+
 #include "Nodes.h"
-class MerkleTree {
-	MerkleNode* root;
 
-	int my_memcmp(const unsigned char* a, const unsigned char* b, int size) {
-		for (int i = 0; i < size; ++i) {
-			if (a[i] != b[i]) {
-				return a[i] - b[i];
-			}
-		}
-		return 0;
-	}
+class MerkleTree
+{
 public:
-	// compare two merkle trees
-    bool compareMerkleTrees(MerkleNode* root1, MerkleNode* root2) {
-        if (root1 == nullptr && root2 == nullptr) {
-            return true;
-        }
+	MerkleTree(AVLNode<String>* root)
+	{
+		this->constructMerkleTree(root);
+	}
 
-        if (root1 == nullptr || root2 == nullptr) {
-            return false;
-        }
+	// Recursively construct the merkle tree using indoreder traversal of the root, 
+	// such that all the nodes of the tree whose root passed are now leaf nodes in the merkle tree, 
+	// and the parents of nodes in merkle tree are hashed based on children hashes (using my rehash function)
+	void constructMerkleTree(AVLNode<String>* root)
+	{
+		if (root != nullptr)
+		{
+			constructMerkleTree(root->descendants[0]);
+			constructMerkleTree(root->descendants[1]);
+			this->insertMerkleNode(root);
+		}
+	}
 
-        if (root1->hashType != root2->hashType) {
-            return false;
-        }
-
-        if (root1->hashType == 1) { // Instructor hash
-            if (root1->instructorHash != root2->instructorHash) {
-                return false;
-            }
-        }
-        else if (root1->hashType == 2) { // SHA hash
-            if (my_memcmp(root1->shaHash, root2->shaHash, SHA256_DIGEST_LENGTH) != 0) {
-                return false;
-            }
-        }
-
-        for (int i = 0; i < 2; ++i) {
-            if (!compareMerkleTrees(root1->getChild(i), root2->getChild(i))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+	void insertMerkleNode(AVLNode<String>* root)
+	{
+		
+	}
 };

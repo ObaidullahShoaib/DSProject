@@ -129,6 +129,7 @@ public:
 	bool isLeaf() { return this->descendants[0] == nullptr && this->descendants[1] == nullptr; }
 };
 
+
 class MerkleNode {
 public:
 	int hashType;
@@ -139,10 +140,9 @@ public:
 	MerkleNode** descendants;
 	MerkleNode* parent;
 
-	MerkleNode(int hashType, TreeNode<String>* referencedNode)
-		:hashType(hashType), referencedNode(referencedNode), parent(nullptr) {
-		this->nullAllDescendants();
-	}
+public:
+	MerkleNode(int hashType, TreeNode<String>* referencedNode) 
+		:hashType(hashType), referencedNode(referencedNode), parent(nullptr)  { this->nullAllDescendants(); }
 
 	void nullAllDescendants() { FOR(0, 2) this->descendants[i] = nullptr; }
 	MerkleNode* getChild(int index) { return this->descendants[index]; }
