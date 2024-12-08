@@ -1,5 +1,6 @@
 #include "Nodes.h"
 #include "Tree.h"
+#include "FileManager.h"
 template <typename T>
 class RedBlackTree : public Tree<T> {
 private:
@@ -320,7 +321,7 @@ public:
         fixInsert(node);
     }
 
-    void remove(T key) override {
+    void remove(T key, fs::path path) override {
         RBNode<T>* node = root;
         RBNode<T>* z = nullptr;
         RBNode<T>* x = nullptr;
@@ -378,6 +379,8 @@ public:
             y->setColor(z->color);
         }
 
+        fs::path fileName = path / "Nodes" / z->nodeName;
+		FileManager::deleteFile(fileName);
         delete z;
 
         // If the original color was black, fix the tree properties
@@ -385,7 +388,6 @@ public:
             fixDelete(x, root);
         }
     }
-
 
     void inorder() const override {
         if (root == nullptr) {

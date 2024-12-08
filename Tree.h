@@ -6,7 +6,7 @@ template <typename T>
 class Tree {
 public:
 	virtual void insert(T, String, int) = 0;
-	virtual void remove(T) = 0;
+	virtual void remove(T, fs::path) = 0;
 	//virtual TreeNode<T>* search(const T&) = 0;
 	virtual void inorder() const = 0;
 	virtual void deleteTree() = 0;

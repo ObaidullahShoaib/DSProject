@@ -18,6 +18,41 @@ public:
             inputFile.close();
     }
 
+    void reSize() {
+		char** temp = new char* [rowCount];
+		char** temp2 = new char* [rowCount];
+		for (int i = 0; i < rowCount; ++i)
+		{
+			temp[i] = new char[my_strlen(row_data[i]) + 1];
+			my_strcpy(temp[i], row_data[i]);
+			temp2[i] = new char[my_strlen(key_data[i]) + 1];
+			my_strcpy(temp2[i], key_data[i]);
+		}
+		for (int i = 0; i < rowCount; ++i)
+		{
+			delete[] row_data[i];
+			delete[] key_data[i];
+		}
+		delete[] row_data;
+		delete[] key_data;
+		row_data = new char* [rowCount];
+		key_data = new char* [rowCount];
+		for (int i = 0; i < rowCount; ++i)
+		{
+			row_data[i] = new char[my_strlen(temp[i]) + 1];
+			my_strcpy(row_data[i], temp[i]);
+			key_data[i] = new char[my_strlen(temp2[i]) + 1];
+			my_strcpy(key_data[i], temp2[i]);
+		}
+		for (int i = 0; i < rowCount; ++i)
+		{
+			delete[] temp[i];
+			delete[] temp2[i];
+		}
+		delete[] temp;
+		delete[] temp2;
+    }
+
     CSVFileManager() : row_data(nullptr), key_data(nullptr), columns_data(nullptr){}
 
     //assignment operator
@@ -225,6 +260,51 @@ public:
         }
     }
 
+	String extractData(String key) {
+		for (int i = 0; i < rowCount; ++i) {
+			if (key == key_data[i]) {
+				return row_data[i];
+			}
+		}
+        String emptyStr = "";
+		return emptyStr;
+	}
+    void removeDataFromArray(String key) {
+        for (int i = 0; i < rowCount; ++i) {
+			if (key == key_data[i]) {
+				delete[] row_data[i];
+				delete[] key_data[i];
+                for (int j = i; j < rowCount - 1; ++j) {
+					row_data[j] = row_data[j + 1];
+					key_data[j] = key_data[j + 1];
+				}
+				rowCount--;
+                //reSize();
+				break;
+			}
+        }
+    }
+    void removeData(fs::path branchCSVPath, String key) {
+        String data = extractData(key);
+        removeDataFromArray(key);
+        removeDataFromCsv(branchCSVPath,data);
+    }
+    void removeDataFromCsv(fs::path branchCSVPath, String data) {
+		ofstream temp(branchCSVPath / "temp.csv");
+		ifstream file(branchCSVPath / this->file_name);
+		string line;
+		while (getline(file, line))
+		{
+            String my_line = line.c_str();
+			if (my_line != data.c_str())
+				temp << line << endl;
+		}
+		rowCount--;
+		temp.close();
+		file.close();
+		remove(branchCSVPath / this->file_name);
+		rename(branchCSVPath / "temp.csv",branchCSVPath / this->file_name);
+    }
     void displayFileData()
     {
         // Print data along with keys
@@ -252,6 +332,7 @@ public:
         }
     }
 
+
     void appendToFile(fs ::path pathOfFile,String str) {
 		outputFile.open(pathOfFile, ios::app);
 		if (!outputFile)
@@ -262,6 +343,7 @@ public:
 		{
 			outputFile << str << endl;
 			outputFile.close();
+			rowCount++;
 		}
     }
 

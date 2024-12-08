@@ -38,6 +38,7 @@ public:
 		this->repoCount++;
 		return allRepos[repoCount - 1];
 	}
+
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
 		for (int i = 0; i < repoCount; i++) {

@@ -60,7 +60,8 @@ public:
 		my_strcpy(this->file_name, fileName.string().c_str());
 	}
 
-    void openFile(fs::path CSVPath = "")    {
+    void openFile(fs::path CSVPath = "")
+    {
         if (CSVPath == "")
         {
             int c = 1;
@@ -103,6 +104,21 @@ public:
     void setCSVPath(fs::path CSVPath)
     {
         this->CSVPath = CSVPath;
+    }
+
+    static void deleteFile(fs::path fileToDelete)
+    {
+        if (!fs::exists(fileToDelete))
+            return;
+
+		if (fs::remove(fileToDelete))
+		{
+			cout << "File deleted successfully: " << fileToDelete << endl;
+		}
+		else
+		{
+			cerr << "Error: Could not delete file: " << fileToDelete << endl;
+		}
     }
 
     void deleteFile()

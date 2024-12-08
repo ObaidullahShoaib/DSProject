@@ -250,7 +250,21 @@ public:
 	}
 
 	void deleteRecord() {
+		cout << "Enter key to remove: ";
+		String key;
+		cin >> key;
+		cout << "How many instances do you want to delete: ";
+		int count;
+		cin >> count;
 
+		fs::path branchPath = folderManager.get_current_path();
+		branchPath += "\\";
+		branchPath += branchName;
+		for (int i = 0; i < count; i++) {
+			tree1->remove(key, branchPath);
+		}
+		createNodeFile(tree1->getRoot());		 
+		fileReader.removeData(branchPath,key);
 	}
 	void editRecord() {
 
@@ -369,7 +383,7 @@ public:
 		//this->commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
 		this->fileReader = source.fileReader;
 		this->fileReader.setCSVPath(folderManager.get_current_path() / newName / source.getFileReader().getFileName());
-		fileReader.copy_file(source.getCSVPath(), folderManager.get_current_path() / this->branchName);
+		fileReader.copy_file(folderManager.get_current_path() / source.branchName / source.getFileReader().getFileName(), folderManager.get_current_path() / this->branchName);
 		this->treeType = source.treeType;
 		this->hashType = source.hashType;
 		this->tree1 = source.tree1->clone();

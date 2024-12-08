@@ -1,5 +1,6 @@
 #pragma once
 #include "Tree.h"
+#include "FileManager.h"
 // AVl class that also manage the parent pointer
 template <typename T>
 class AVLTree :public Tree<T> {
@@ -7,6 +8,7 @@ class AVLTree :public Tree<T> {
 	int count;
 public:
 	AVLTree() : root(nullptr) {}
+
 	AVLTree(const AVLTree& other) {
 		root = copyTree(other.root);
 		this->count = other.count;
@@ -19,16 +21,19 @@ public:
 		}
 		return *this;
 	}
+
 	~AVLTree() {
 		deleteTree();
 	}
+	
 	void insert(T key, String data, int hashType) override {
 		count++;
 		bool* firstReturn = new bool(false);
 		root = insertHelper(root, key, data, hashType, this->count, firstReturn);
 	}
-	void remove(T key) override {
-		root = removeHelper(root, key);
+	
+	void remove(T key, fs::path path) override {
+		root = removeHelper(root, key, path);
 	}
 
 	void inorder() const override {
@@ -42,7 +47,19 @@ public:
 	Tree<T>* clone() override {
 		return new AVLTree<T>(*this);
 	}
+
+
 private:
+	AVLNode<T>* findNode(AVLNode<T>* node, int id) {
+		if (node == nullptr) return nullptr;
+		if (node->id == id) return node;
+		AVLNode<T>* left = findNode(node->descendants[0], id);
+		AVLNode<T>* right = findNode(node->descendants[1], id);
+		if (left != nullptr) return left;
+		if (right != nullptr) return right;
+		return nullptr;
+	}
+
 	AVLNode<T>* findMin(AVLNode<T>* node) const {
 		if (node == nullptr)
 			return nullptr;
@@ -183,15 +200,15 @@ private:
 	}
 
 	// remove a node
-	AVLNode<T>* removeHelper(AVLNode<T>* node, T key) {
+	AVLNode<T>* removeHelper(AVLNode<T>* node, T key, fs::path path) {
 		if (node == nullptr) return nullptr;
 		if (key < node->key) {
-			node->descendants[0] = removeHelper(node->descendants[0], key);
+			node->descendants[0] = removeHelper(node->descendants[0], key, path);
 			node->updated = true;
 			setParent(node->descendants[0], node);
 		}
 		else if (key > node->key) {
-			node->descendants[1] = removeHelper(node->descendants[1], key);
+			node->descendants[1] = removeHelper(node->descendants[1], key, path);
 			node->updated = true;
 			setParent(node->descendants[1], node);
 		}
@@ -205,13 +222,15 @@ private:
 				else {
 					*node = *temp;
 				}
+				fs::path fileName = path / "Nodes" / temp->nodeName;
+				FileManager::deleteFile(fileName);
 				delete temp;
 			}
 			else {
 				AVLNode<T>* temp = findMin(node->descendants[1]);
 				node->key = temp->key;
 				node->data = temp->data;
-				node->descendants[1] = removeHelper(node->descendants[1], temp->key);
+				node->descendants[1] = removeHelper(node->descendants[1], temp->key, path);
 				node->updated = true;
 				setParent(node->descendants[1], node);
 			}
