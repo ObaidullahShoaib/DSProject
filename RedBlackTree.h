@@ -39,7 +39,7 @@ private:
         node->parent = child;
     }
 
-    void fixInsert(RBNode<T>*& node) {
+    void fixAfterInsertion(RBNode<T>*& node) {
         RBNode<T>* parent = nullptr;
         RBNode<T>* grandparent = nullptr;
 
@@ -102,7 +102,7 @@ private:
             root->setColor(1); // 1: BLACK
     }
 
-    void fixDelete(RBNode<T>*& node, RBNode<T>*& root) {
+    void fixAfterDeletion(RBNode<T>*& node, RBNode<T>*& root) {
         while (node != root && (node == nullptr || node->color == 1)) { // 1: Black
             if (node == node->parent->descendants[0]) {
                 RBNode<T>* sibling = node->parent->descendants[1];
@@ -191,7 +191,7 @@ private:
         }
     }
 
-    RBNode<T>* minValueNode(RBNode<T>*& node) {
+    RBNode<T>* findMinValueNode(RBNode<T>*& node) {
         RBNode<T>* current = node;
         while (current->descendants[0] != nullptr)
             current = current->descendants[0];
@@ -318,7 +318,7 @@ public:
             parent->updated = true;
         }
 
-        fixInsert(node);
+        fixAfterInsertion(node);
     }
 
     void remove(T key, fs::path path) override {
@@ -360,7 +360,7 @@ public:
         }
         // Case 3: Node to delete has two children
         else {
-            y = minValueNode(z->descendants[1]); // Find the successor
+            y = findMinValueNode(z->descendants[1]); // Find the successor
             yOriginalColor = y->color;
             x = y->descendants[1];
             if (y->parent == z) {
@@ -385,7 +385,7 @@ public:
 
         // If the original color was black, fix the tree properties
         if (yOriginalColor == 1) {
-            fixDelete(x, root);
+            fixAfterDeletion(x, root);
         }
     }
 
