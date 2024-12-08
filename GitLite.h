@@ -92,7 +92,8 @@ public:
 			{
 				system("cls");
 			}
-			else if (input == "exit") {
+			else if (input == "exit")
+			{
 				cout << "Exiting the program!" << endl;
 				cout << "Do you want to save the changes? (Y/N): ";
 				char choice;

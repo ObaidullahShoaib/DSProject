@@ -304,24 +304,18 @@ public:
 		rename(branchCSVPath / "temp.csv",branchCSVPath / this->file_name);
     }
 
-    void UpdateDataFromCsv(fs::path branchCSVPath, String data, String newData) {
-        ofstream temp(branchCSVPath / "temp.csv");
-        ifstream file(branchCSVPath / this->file_name);
+    void UpdateDataFromCsv(fs::path branchCSVPath, String data, String newData) 
+    {
+        fstream file(branchCSVPath / this->file_name);
         string line;
         while (getline(file, line))
         {
             String my_line = line.c_str();
-            if (my_line != data.c_str())
-                temp << line << endl;
-            else {
-				temp << newData << endl;
-
-            }
+            if (my_line == data.c_str())
+                file << newData << endl;
         }
-        temp.close();
+    
         file.close();
-        remove(branchCSVPath / this->file_name);
-        rename(branchCSVPath / "temp.csv", branchCSVPath / this->file_name);
     }
 
     void displayFileData()

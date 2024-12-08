@@ -266,11 +266,215 @@ public:
 		createNodeFile(tree1->getRoot());		 
 		fileReader.removeData(branchPath,key);
 	}
-	void editRecord() {
+	void editRecord()
+	{
+		// get key from the user
+		cout << "Enter the key of the record you want to edit: ";
+		char* targetKey = new char[1000];
+		cin.ignore();
+		cin.getline(targetKey, 1000);
+
+		// checking record existence
+		int nodeNo = searchRecord(targetKey);
+		if (nodeNo == -1)
+		{
+			cout << "Record not found or does not exist." << endl;
+			delete[] targetKey;
+			return;
+		}
+
+		// retrieve row data
+		fs::path NodeFileName = "Node_" + (to_string(nodeNo) + ".txt");
+		fs::path NodeFilePath = folderManager.get_current_path() / this->getBranchName() / "Nodes" / NodeFileName;
+		ifstream nodeFile(NodeFilePath);
+		if (!nodeFile.is_open())
+		{
+			cout << "Error opening file!" << endl;
+			delete[] targetKey;
+			return;
+		}
+
+		char* rowData = new char[1000];
+		int lineNo = 1;
+		while (nodeFile.getline(rowData, 1000))
+		{
+			if (lineNo == 3)
+			{
+
+				break;
+			}
+			lineNo++;
+		}
+		nodeFile.close();
+
+		
+
+		
+		for (int i = 0; i < this->fileReader.columnCount; i++)
+		{
+			cout << i + 1 << ". " << this->fileReader.columns_data[i] << endl;
+		}
+		int columnNo;
+		cout<<"\nEnter column number to be edited: ";
+		cin >> columnNo;
+
+		if (columnNo < 1 || columnNo > this->fileReader.columnCount)
+		{
+			cout << "Invalid column number!" << endl;
+			delete[] targetKey;
+			delete[] rowData;
+			return;
+		}
+
+		// Step 5: Get the new value
+		char* newValue = new char[1000];
+		cout << "\nEnter the new value for " << this->fileReader.columns_data[columnNo - 1] << ": ";
+		cin.ignore();
+		cin.getline(newValue, 1000);
+
+		// Step 6: Update the row data
+		String updatedRow = rowData;
+		updatedRow = updatedRow.editColumnValue(rowData, columnNo, newValue);
+
+		fs::path branchPath = folderManager.get_current_path();
+		branchPath += "\\";
+		branchPath += branchName;
+
+		this->fileReader.UpdateDataFromCsv(branchPath, rowData, updatedRow);
+		// Step 7: Write the updated data back to the file
+		replaceLineInFile(NodeFilePath, 3, updatedRow.c_str());
+
+		// update in tree node data
+		TreeNode<String>* updateNode = searchTreeNode(targetKey);
+		updateNode->setTreeNodeData(updatedRow);
+		// Clean up
+		delete[] targetKey;
+		delete[] rowData;
+		delete[] newValue;
+
+		cout << "\nRecord updated successfully!" << endl;
+	}
+
+	String extractColumn(const char* rowData, int columnNo)
+	{
+		String data = rowData;
+		int currentColumn = 1;
+
+		while (!data.empty())
+		{
+			int commaPos = data.find(",");
+			String currentValue;
+
+			if (commaPos != -1)
+			{
+				currentValue = data.substr(0, commaPos);
+				data = data.substr(commaPos + 1, data.length());
+			}
+			else
+			{
+				currentValue = data;
+				data.clear();
+			}
+
+			if (currentColumn == columnNo)
+			{
+				return currentValue;
+			}
+
+			currentColumn++;
+		}
+
+		return ""; // Return empty string if column not found
+	}
+
+
+	int searchRecord(String key)
+	{
+		// serach in the tree until the key is found
+		this->tree1->getRoot();
+		TreeNode<String>* current = this->tree1->getRoot();
+		while (current != nullptr) 
+		{
+			if (current->key == key) 
+			{
+				return current->id;
+			}
+			else if (current->key > key) 
+			{
+				current = current->getChild(0);
+			}
+			else 
+			{
+				current = current->getChild(1);
+			}
+		}
+		// key not found
+		return -1;
 
 	}
 
-	void commitMsg() {
+	TreeNode<String>* searchTreeNode(String key)
+	{
+		// serach in the tree until the key is found
+		this->tree1->getRoot();
+		TreeNode<String>* current = this->tree1->getRoot();
+		while (current != nullptr)
+		{
+			if (current->key == key)
+			{
+				return current;
+			}
+			else if (current->key > key)
+			{
+				current = current->getChild(0);
+			}
+			else
+			{
+				current = current->getChild(1);
+			}
+		}
+		// key not found
+		return nullptr;
+	}
+
+	bool searchColumn(String data, int columnNo, String target)
+	{
+		int currentColumn = 1;
+
+		while (!data.empty()) 
+		{
+			// find comma
+			int commaPos = data.find(",");
+			// go to that specific column no and extract string only
+			String currentValue;
+			if (commaPos != -1) 
+			{
+				// extract string till comma
+				currentValue = data.substr(0, commaPos); 
+				data = data.substr(0, commaPos + 1);
+			}
+			else
+			{
+				currentValue = data; 
+				data.clear();
+			}
+
+			
+			if (currentColumn == columnNo && currentValue == target)
+			{
+				return true;
+			}
+
+			// Move to the next column
+			currentColumn++;
+		}
+		return false;
+	}
+
+	
+
+	void commitMsg() 
+	{
 		commitCount++;
 		String index = intToString(commitCount);
 		String commitData = "Commit# ";

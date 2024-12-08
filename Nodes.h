@@ -58,6 +58,16 @@ struct TreeNode {
 		}
 	}
 
+	void setTreeNodeData(String data)
+	{
+		this->data = data;
+	}
+
+	String getTreeNodeData() 
+	{
+		return this->data; 
+	}
+
 	~TreeNode() { }
 	virtual TreeNode<T>* getChild(int index) = 0;
 	virtual TreeNode<T>* getParent() = 0;

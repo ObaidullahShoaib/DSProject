@@ -254,6 +254,53 @@ public:
     }
 
 
+    // Function to edit a specific column in a comma-separated row
+    char* editColumnValue(const char* rowData, int columnNo, const char* newValue)
+    {
+        // Copy the input row data into a mutable array
+        char* mutableRow = new char[strlen(rowData) + 1];
+        strcpy(mutableRow, rowData);
+
+        // Temporary array to store the new row data
+        char* updatedRow = new char[strlen(rowData) + strlen(newValue) + 1];
+        updatedRow[0] = '\0'; // Initialize as an empty string
+
+        // Tokenize the row data to extract column values
+        char* token = strtok(mutableRow, ",");
+        int currentColumn = 1;
+
+        while (token != nullptr)
+        {
+            // Check if it's the column to be edited
+            if (currentColumn == columnNo)
+            {
+                strcat(updatedRow, newValue); // Append the new value
+            }
+            else
+            {
+                strcat(updatedRow, token); // Append the original value
+            }
+
+            // Add a comma if it's not the last column
+            token = strtok(nullptr, ",");
+            if (token != nullptr)
+            {
+                strcat(updatedRow, ",");
+            }
+
+            currentColumn++;
+        }
+
+        // Clean up
+        delete[] mutableRow;
+
+        // Return the updated row
+        return updatedRow;
+    }
+
+    
+
+
     // Additional Features
     bool starts_with(const char* prefix) const {
         int len = my_strlen(prefix);
@@ -397,7 +444,8 @@ String intToString(int num) {
 }
 
 // Function to extract the .csv filename
-String extractCSVFileName(fs::path fp) {
+String extractCSVFileName(fs::path fp)
+{
 	String filePath = fp.string().c_str();
     // Remove trailing slashes
     String normalizedPath = filePath;
@@ -424,4 +472,76 @@ String extractCSVFileName(fs::path fp) {
     // Return an empty string if it's not a .csv file
     String emptyStr = "";
     return emptyStr;
+}
+
+void replaceLineInFile(const fs::path& filePath, int lineNumber, const string& newLine)
+{
+    // Open the file for reading
+    ifstream inputFile(filePath);
+    if (!inputFile.is_open())
+    {
+        cout << "Error: Could not open file for reading: " << filePath << endl;
+        return;
+    }
+
+    // Dynamically allocate memory for storing lines
+    int maxLines = 1000; // Arbitrary maximum for demonstration
+    char** lines = new char* [maxLines];
+    int lineCount = 0;
+
+    // Read lines into the dynamic array
+    char buffer[1000]; // Temporary buffer for line reading
+    while (inputFile.getline(buffer, 1000) && lineCount < maxLines)
+    {
+        lines[lineCount] = new char[strlen(buffer) + 1];
+        strcpy(lines[lineCount], buffer);
+        lineCount++;
+    }
+    inputFile.close();
+
+    // Validate the line number
+    if (lineNumber < 1 || lineNumber > lineCount)
+    {
+        cout << "Error: Line number out of range.\n";
+        for (int i = 0; i < lineCount; i++)
+        {
+            delete[] lines[i];
+        }
+        delete[] lines;
+        return;
+    }
+
+    // Replace the specific line
+    delete[] lines[lineNumber - 1]; // Free the old line memory
+    lines[lineNumber - 1] = new char[newLine.length() + 1];
+    strcpy(lines[lineNumber - 1], newLine.c_str());
+
+    // Open the file for writing
+    ofstream outputFile(filePath);
+    if (!outputFile.is_open())
+    {
+        cout << "Error: Could not open file for writing: " << filePath << endl;
+        for (int i = 0; i < lineCount; i++)
+        {
+            delete[] lines[i];
+        }
+        delete[] lines;
+        return;
+    }
+
+    // Write all lines back to the file
+    for (int i = 0; i < lineCount; i++)
+    {
+        outputFile << lines[i] << '\n';
+    }
+    outputFile.close();
+
+    // Free allocated memory
+    for (int i = 0; i < lineCount; i++)
+    {
+        delete[] lines[i];
+    }
+    delete[] lines;
+
+    cout << "Line " << lineNumber << " replaced successfully.\n";
 }
