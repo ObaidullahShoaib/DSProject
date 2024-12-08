@@ -260,6 +260,48 @@ public:
         }
     }
 
+	String extractData2(String key, fs::path branchCSVPath) {
+        ifstream inputFile(branchCSVPath / this->file_name);
+        char line[5000];
+        while (inputFile.getline(line, 1000))
+        {
+            if (line[0] == '\0')
+                break;
+
+            char lineCopy[5000];
+			my_strcpy(lineCopy, line);
+
+            // Store the entire row
+            //row_data[row_index] = new char[my_strlen(line) + 1];
+            //my_strcpy(row_data[row_index], line);
+            //row_index++;
+
+            // Extract the key
+            char* token = my_strtok(line, ",");
+            int columnIndex = 1; // Column counter
+            while (token != nullptr)
+            {
+                if (columnIndex == this->keyColumn) // Key column
+                {
+                    char* keydata = new char[my_strlen(token) + 1];
+                    my_strcpy(keydata, token);
+					if (my_strcmp(keydata, stringToChar(key)) == 0)
+                    {
+						String data = lineCopy;
+						return data;
+					}
+                    //key_index++;
+                    break;
+                }
+                token = my_strtok(nullptr, ",");
+                columnIndex++;
+            }
+        }
+
+		String emptyStr = "";
+		return emptyStr;
+	}   
+
 	String extractData(String key) {
 		for (int i = 0; i < rowCount; ++i) {
 			if (key == key_data[i]) {
@@ -275,17 +317,19 @@ public:
 				delete[] row_data[i];
 				delete[] key_data[i];
                 for (int j = i; j < rowCount - 1; ++j) {
-					row_data[j] = row_data[j + 1];
-					key_data[j] = key_data[j + 1];
-				}
-				rowCount--;
+					my_strcpy(row_data[j], row_data[j + 1]);
+                    my_strcpy(key_data[j], key_data[j + 1]);
+				}				
 				break;
 			}
         }
+        rowCount--;
     }
     void removeData(fs::path branchCSVPath, String key) {
-        String data = extractData(key);
-        removeDataFromArray(key);
+        //String dataOld = extractData(key);
+		String data = extractData2(key, branchCSVPath);
+        //removeDataFromArray(key);
+        rowCount--;
         removeDataFromCsv(branchCSVPath,data);
     }
     void removeDataFromCsv(fs::path branchCSVPath, String data) {
@@ -306,16 +350,21 @@ public:
 
     void UpdateDataFromCsv(fs::path branchCSVPath, String data, String newData) 
     {
-        fstream file(branchCSVPath / this->file_name);
+        ofstream temp(branchCSVPath / "temp.csv");
+        ifstream file(branchCSVPath / this->file_name);
         string line;
         while (getline(file, line))
         {
             String my_line = line.c_str();
-            if (my_line == data.c_str())
-                file << newData << endl;
+            if (my_line != data.c_str())
+                temp << line << endl;
+            else
+				temp << newData.c_str() << endl;
         }
-    
+        temp.close();
         file.close();
+        remove(branchCSVPath / this->file_name);
+        rename(branchCSVPath / "temp.csv", branchCSVPath / this->file_name);
     }
 
     void displayFileData()
