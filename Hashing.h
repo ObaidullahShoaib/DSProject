@@ -8,9 +8,9 @@
 using namespace std;
 
 template <typename T>
-int hashFunction(T key) 
+int instructorHashFunction(T key) 
 {
-    // generate has for whether string or integer
+    // generate hash for whether string or integer
     return instructor_Hash(key);
 }
 
@@ -53,4 +53,10 @@ void print_hash(unsigned char hash[SHA256_DIGEST_LENGTH])
         cout << hex << setw(2) << setfill('0') << static_cast<int>(hash[i]);
     }
     cout << endl;
+}
+
+void generateHash(int hashType, String data, int& iHash, unsigned char shaHash[SHA256_DIGEST_LENGTH])
+{
+    if (hashType == 1) { iHash = instructorHashFunction(data); }
+	else if (hashType == 2) { generate_sha256_hash(data.c_str(), shaHash); iHash = -1; }
 }

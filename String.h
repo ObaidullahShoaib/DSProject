@@ -73,7 +73,6 @@ public:
         return *this;
     }
 
-
     String& operator=(const char* s) {
         delete[] str;
         str = new char[my_strlen(s) + 1];
@@ -143,8 +142,6 @@ public:
         *this = *this + s;
         return *this;
     }
-
-   
 
     // Utility Functions
     int length() const {
@@ -328,7 +325,6 @@ int my_strcmp(const char* p1, const char* p2) {
 
 		}
 	}
-
 }
 
 char* my_strtok(char* str, const char* delim) {
@@ -401,8 +397,7 @@ String intToString(int num) {
 }
 
 // Function to extract the .csv filename
-String extractCSVFileName(fs::path fp)
-{
+String extractCSVFileName(fs::path fp) {
 	String filePath = fp.string().c_str();
     // Remove trailing slashes
     String normalizedPath = filePath;

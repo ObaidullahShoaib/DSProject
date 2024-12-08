@@ -38,7 +38,6 @@ public:
 		this->repoCount++;
 		return allRepos[repoCount - 1];
 	}
-
 	void setActiveRepo(fs::path pathName) {
 		String name = pathName.string().c_str();
 		for (int i = 0; i < repoCount; i++) {
@@ -98,7 +97,7 @@ public:
 	/*
 	    .
 		.
-		----- SAVING AND LOADING REPOSITORY-----
+		----- SAVING AND LOADING REPOSITORY	-----
 		.
 		.
 	*/
@@ -283,13 +282,20 @@ public:
 	}
 
 
+	/*
+	*
+	*
+	--------    Other Functions 	--------
+	*
+	*
+	*/
 	Repository* findRepo(String name) {
 		for (int i = 0; i < repoCount; i++) {
 			if (this->allRepos[i]->getName() == name)
 				return this->allRepos[i];			
 		}
 		return nullptr;
-	}
+	}	
 
 
 	void commit() {

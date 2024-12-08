@@ -29,10 +29,35 @@ struct TreeNode {
 		nodeName = generateNodeName();
 	}
 
-	TreeNode(T key, String data, int hashType, int id ,int numOfChildren = 2)
+	TreeNode(T key, String data, int hashType, int id, int numOfChildren = 2)
 		: key(key), data(data), numOfChildren(2), hashType(hashType), id(id), updated(false) {
 		nodeName = generateNodeName();
 	}
+
+	void rehash() {
+		if (hashType == 1)
+		{
+			if (this->descendants[0] == nullptr)
+				this->instructorHash = this->descendants[1]->instructorHash;
+			else if (this->descendants[1] == nullptr)
+				this->instructorHash = this->descendants[0]->instructorHash;
+			else
+			{
+				this->instructorHash = this->descendants[0]->instructorHash * this->descendants[1]->instructorHash;
+				this->instructorHash %= 29;
+			}
+		}
+		else if (hashType == 2)
+		{
+			if (this->descendants[0] == nullptr)
+				this->shaHash = this->descendants[1]->shaHash;
+			else if (this->descendants[1] == nullptr)
+				this->shaHash = this->descendants[0]->shaHash;
+			else
+				this->shaHash = my_strcat(this->descendants[0]->shaHash, this->descendants[1]->shaHash);
+		}
+	}
+
 	~TreeNode() { }
 	virtual TreeNode<T>* getChild(int index) = 0;
 	virtual TreeNode<T>* getParent() = 0;
@@ -64,6 +89,8 @@ struct AVLNode : public TreeNode<T> {
 	void nullAllDescendants() { FOR(0, this->numOfChildren) this->descendants[i] = nullptr; }
 	TreeNode<T>* getChild(int index) override { return this->descendants[index]; }
 	TreeNode<T>* getParent() override { return this->parent; }
+
+	bool isLeaf() { return this->descendants[0] == nullptr && this->descendants[1] == nullptr; }
 };
 
 template <typename T>
@@ -74,20 +101,20 @@ public:
 	RBNode* descendants[2];
 
 	RBNode(int id) : color(0), parent(nullptr) { this->nullAllDescendants(); }
-	RBNode(T key, String data, int hashType, int id ,RBNode* parent = nullptr)
+	RBNode(T key, String data, int hashType, int id, RBNode* parent = nullptr)
 		: color(0), TreeNode<T>(key, data, hashType, id), parent(parent) { this->nullAllDescendants(); }
 
 	void nullAllDescendants() { FOR(0, this->numOfChildren) this->descendants[i] = nullptr; }
 	TreeNode<T>* getChild(int index) override { return this->descendants[index]; }
 	TreeNode<T>* getParent() override { return this->parent; }
 
-	void setColor(int color) 
-	{ 
-		if (this->color != color) 
+	void setColor(int color)
+	{
+		if (this->color != color)
 		{
 			this->color = color;
 			this->updated = true;
-		}		
+		}
 	}
 
 	void setParent(RBNode* newParent)
@@ -98,4 +125,6 @@ public:
 			this->updated = true;
 		}
 	}
+
+	bool isLeaf() { return this->descendants[0] == nullptr && this->descendants[1] == nullptr; }
 };

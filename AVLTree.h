@@ -7,7 +7,6 @@ class AVLTree :public Tree<T> {
 	int count;
 public:
 	AVLTree() : root(nullptr) {}
-
 	AVLTree(const AVLTree& other) {
 		root = copyTree(other.root);
 		this->count = other.count;
@@ -20,16 +19,14 @@ public:
 		}
 		return *this;
 	}
-
 	~AVLTree() {
 		deleteTree();
 	}
-	
 	void insert(T key, String data, int hashType) override {
 		count++;
-		root = insertHelper(root, key, data, hashType, this->count);
+		bool* firstReturn = new bool(false);
+		root = insertHelper(root, key, data, hashType, this->count, firstReturn);
 	}
-	
 	void remove(T key) override {
 		root = removeHelper(root, key);
 	}
@@ -137,25 +134,52 @@ private:
 	}
 
 
-	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType, int count, int hash = -1) {
-		if (node == nullptr) {
+	AVLNode<T>* insertHelper(AVLNode<T>* node, T key, String data, int hashType, int count, bool* firstReturn) {
+		if (node == nullptr) { 
 			node = new AVLNode<T>(key, data, hashType, count);
 			node->updated = true;
 			return node;
 		}
 		if (key < node->key) {
-			node->descendants[0] = insertHelper(node->descendants[0], key, data, hashType, count);
+			node->descendants[0] = insertHelper(node->descendants[0], key, data, hashType, count, firstReturn);
 			node->updated = true;
 			// Explicitly set parent
 			setParent(node->descendants[0], node);
 		}
 		else if (key >= node->key) {
-			node->descendants[1] = insertHelper(node->descendants[1], key, data, hashType, count);
+			node->descendants[1] = insertHelper(node->descendants[1], key, data, hashType, count, firstReturn);
 			node->updated = true;
 			// Explicitly set parent
 			setParent(node->descendants[1], node);
+		}		
+
+		// 1st Return:
+		if (!*firstReturn)
+		{
+			*firstReturn = true;
+			generateHash(hashType, data, node->instructorHash, node->shaHash); 
+			node->updated = true;
 		}
 		return rebalance(node);
+	}
+
+
+	// rehashing:
+	void rehashNode(AVLNode<T>* node) {
+		if (node == nullptr) return;
+		this->rehashNode(node->descendants[0]);
+		this->rehashNode(node->descendants[1]);
+		
+		if (node->updated || node->descendants[0]->updated || node->descendants[1]->updated) 
+		{
+			if (node->isLeaf())
+				generateHash(node->hashType, node->data, node->instructorHash, node->shaHash);
+			else			
+				node->rehash();			
+
+			// Node's updation has been dealt, so now resetting the flag:
+			node->updated = false;
+		}
 	}
 
 	// remove a node

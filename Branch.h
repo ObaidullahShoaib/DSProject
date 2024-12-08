@@ -19,7 +19,7 @@ class Branch {
 	TxtFileManager commitLog;
 	int commitCount = 0;
 	Tree<String>* tree1;
-
+	
 	fs::path branchName;
 	fs::path csvPath;
 
@@ -29,15 +29,15 @@ class Branch {
 
 
 	/*
-	*
-	*
+	* 
+	* 
 	 --------    Function Name: initializeTree    --------
 	*
 	*
 	*/
 
 	void initializeTree(int hashType, String& treeType, int rowCount)
-	{
+	{	
 		if (treeType == "")
 		{
 			int choice;
@@ -124,13 +124,12 @@ public:
 		{
 			init(hashType, treeType, columnNo, csvPath);
 			fileReader.copy_file(fileReader.getCSVPath(), repoPath / this->branchName);
-
-		}
+		}		
 	}
 
 	/*
-	*
-	*
+	* 
+	* 
 	 --------    Function Name: init    --------
 	*
 	*
@@ -139,9 +138,9 @@ public:
 		fileReader.openFile(csvPath);
 		this->setCSVPath();
 		fileReader.readFileData(columnNo);
-
+		
 		int rowCount = fileReader.getRowCount();
-
+		
 		initializeTree(hashType, treeType, rowCount);
 		createNodeFile(tree1->getRoot());
 	}
@@ -353,8 +352,8 @@ public:
 
 
 	/*
-	*
-	*
+	* 
+	* 
 	 --------    Function Name: Copy Branch Details    --------
 	*
 	*
@@ -362,11 +361,11 @@ public:
 
 	void CopyBranchDetails(fs::path newName, Branch& source) {
 		this->branchName = newName;
-
+		
 		//this->folderManager.create_folder(folderManager.get_current_path() / branchName / "Nodes");
 		this->folderManager = source.folderManager;
 		this->folderManager.copy_folder(folderManager.get_current_path() / branchName / "Nodes", folderManager.get_current_path() / source.branchName / "Nodes");
-
+		
 		//this->commitLog.createFile(folderManager.get_current_path() / this->branchName / "commitLog.txt");
 		this->fileReader = source.fileReader;
 		this->fileReader.setCSVPath(folderManager.get_current_path() / newName / source.getFileReader().getFileName());
@@ -378,8 +377,8 @@ public:
 
 
 	/*
-	*
-	*
+	* 
+	* 
 	 --------    Getters, Setters:    --------
 	*
 	*
@@ -393,7 +392,7 @@ public:
 		return this->csvPath;
 	}
 
-	void setCSVPath()
+	void setCSVPath() 
 	{
 		this->csvPath = this->fileReader.getCSVPath();
 	}

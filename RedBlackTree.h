@@ -400,4 +400,22 @@ public:
         return root;
 
     }
+
+    // rehashing:
+    void rehashNode(RBNode<T>* node) {
+        if (node == nullptr) return;
+        this->rehashNode(node->descendants[0]);
+        this->rehashNode(node->descendants[1]);
+
+        if (node->updated || node->descendants[0]->updated || node->descendants[1]->updated)
+        {
+            if (node->isLeaf())
+                generateHash(node->hashType, node->data, node->instructorHash, node->shaHash);
+            else
+                node->rehash();
+
+            // Node's updation has been dealt, so now resetting the flag:
+            node->updated = false;
+        }
+    }
 };

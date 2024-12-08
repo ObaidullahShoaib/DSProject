@@ -1,24 +1,34 @@
 #pragma once
+
+// Our Inclusions:
 #include "Branch.h"
 #include "TxtFileManager.h"
+
+// System Libraries:
 #include <iostream>
 
 class Repository {
 private:
 	String name;
-
+	
 	Branch* activeBranch;     // Currently active branch
 	int branchCount;          // Number of branches
     Branch** allBranches;      // Dynamic array of branches
 	
 	fs::path csvPath;
 	FolderManager folderManager;
-	
 	String treeType;
+	
 	int columnNo;
 	int hashType;
 
+
 public:
+	// get HashType:
+	int getHashType() const {
+		return this->hashType;
+	}
+
 	// get ColumnNo:
 	int getColumnNo() const {
 		return this->columnNo;
@@ -85,6 +95,14 @@ public:
 	}
 
 
+
+	/*
+	*
+	*
+	--------    Repository Constructor: 	--------
+	*
+	*
+	*/
     Repository(fs::path repoName, fs::path CSVFileName, fs::path repoPath,fs::path csvPath = "", String treeType = "", int columnNo = 0)
 		: branchCount(1), folderManager(repoPath), treeType(treeType), columnNo(columnNo)
 	{
@@ -241,6 +259,8 @@ public:
 	void commit() {
 		activeBranch->commit();
 	}
+
+	
 	void save() {
 		ofstream metaData = ofstream(folderManager.get_current_path() / "MetaData.txt");
 		if (metaData.is_open())
@@ -265,13 +285,14 @@ public:
 	}
 
 
+
 	/*
-*
-*
- --------    INPUT HASH TYPE	--------
-*
-*
-*/
+	*
+	*
+	 --------    INPUT HASH TYPE	--------
+	*
+	*
+	*/
 	bool inputHashType() {
 		int choice;
 		int expiryCount = 0;
@@ -305,8 +326,6 @@ public:
 	void log(fs::path commitLogFilePath) {
 		activeBranch->showCommits(commitLogFilePath);
 	}
-
-
 
     // Destructor
     ~Repository() {
