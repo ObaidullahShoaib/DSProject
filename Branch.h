@@ -262,7 +262,7 @@ public:
 		String index = intToString(commitCount);
 		String commitData = "Commit# ";
 		char ch = commitCount + '0';
-		commitData.appendchAtStart(commitCount);
+		commitData = commitData.appendchAtEnd(ch);
 		commitData += "  Message: ";
 
 		char* msg = new char[1000];

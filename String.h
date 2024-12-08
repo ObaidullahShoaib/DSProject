@@ -239,6 +239,22 @@ public:
         return temp;
     }
 
+    // Append character at end of the string
+    String appendchAtEnd(char ch) const {
+
+        String temp = "";
+        temp.str = new char[this->length() + 2];
+
+        for (int i = 0; i < this->length(); i++) 
+        {
+            temp.str[i] = str[i];
+        }
+
+        temp.str[this->length()] = ch;
+        temp.str[this->length() + 1] = '\0';
+
+        return temp;
+    }
 
 
     // Additional Features
