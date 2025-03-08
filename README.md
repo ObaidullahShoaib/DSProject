@@ -35,6 +35,7 @@ GitLite is a simplified yet powerful version control system designed to efficien
      libcrypto.lib
      ```
    - **Environment Variable**: Add `C:\openssl-3.4.0\build\bin` to `PATH`.  
+3. Include all header files in the new project in Visual Studio and for cpp only include main.cpp don't include drivercode files.
 
 ---
 
@@ -127,10 +128,10 @@ Do you want to save the changes? (Y/N): Y
 Changes saved.
 ```
 
-🚧 Unimplemented Features
+### 🚧 Unimplemented Features   
 The following features are not yet implemented but may be added in future updates:
 B-Tree Support: Currently, only AVL Trees and Red-Black Trees are fully implemented.
-Tree Visualization: The visualize-tree command is not yet functional but is planned for future releases.
+Tree Visualization & Branch Merging: The visualize-tree and merge command is not yet functional but is planned for future releases.
 
 ## 🛠 Implementation Guide
 How We Implemented GitLite
