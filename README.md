@@ -1,6 +1,10 @@
+
 # 🚀 GitLite - A Lightweight Version Control System  
 
 GitLite is a simplified yet powerful version control system designed to efficiently handle file versioning using tree structures. Unlike traditional methods, GitLite minimizes data redundancy, optimizes performance for large files, and ensures data integrity through cryptographic hashing.  
+
+
+<img src="https://github.com/user-attachments/assets/ce1652a1-19f9-49ac-8748-00cdfcf003d9" width="1000">
 
 ---
 
