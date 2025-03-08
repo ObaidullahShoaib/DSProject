@@ -157,5 +157,7 @@ How We Implemented GitLite
 
 ### File Storage:
 - Instead of loading the entire tree into memory, each node is stored in a separate file, optimizing performance for large datasets.
-###  Credits 🤝
+      
+##  Credits 🤝
+
 This project was developed by **Muhammad Kaleem Akhtar**, **Obaidullah Shoaib**, and **Fatik Bin Imran** as part of the Data Structures course. Special thanks to our professor and mentor for their guidance and support.
